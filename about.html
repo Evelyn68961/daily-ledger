@@ -7,71 +7,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 <style>
-  :root {
-    --cream: #F4EAD5;
-    --cream-deep: #EDDEC0;
-    --cream-soft: #FAF3E4;
-    --sage: #A8B89A;
-    --sage-deep: #7A8C6C;
-    --sage-ink: #2D3E2A;
-    --clay-ink: #7A5C3F;
-    --ink: #1F2B1D;
-    --ink-soft: #5D6E4D;
-    --ink-hint: #9AA68E;
-    --line: #DDD1B5;
-    --card: #FBF5E7;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body {
-    font-family: 'Manrope', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
-    color: var(--ink); background: var(--cream); line-height: 1.5;
-    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
-  }
-  body {
-    background-image:
-      radial-gradient(circle at 15% 50%, rgba(168, 184, 154, 0.08) 0%, transparent 45%),
-      radial-gradient(circle at 85% 20%, rgba(212, 165, 116, 0.10) 0%, transparent 40%);
-    min-height: 100vh;
-  }
-
-  .eyebrow {
-    font-size: 11px; font-weight: 500;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--clay-ink);
-  }
-
   .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 28px 80px; }
 
   .nav {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 72px;
   }
-  .logo {
-    display: flex; align-items: center; gap: 10px;
-    font-weight: 600; font-size: 16px; color: var(--sage-ink);
-    letter-spacing: -0.01em; text-decoration: none;
-  }
-  .logo-mark { width: 34px; height: 34px; }
-  .nav-right { display: flex; align-items: center; gap: 18px; }
-  .nav-link {
-    font-size: 13px; color: var(--ink-soft); text-decoration: none;
-    font-weight: 500; letter-spacing: 0.02em;
-    transition: color 0.15s;
-  }
-  .nav-link:hover { color: var(--sage-ink); }
-  .lang-switch {
-    display: flex; gap: 2px; background: var(--cream-deep);
-    padding: 3px; border-radius: 999px; border: 0.5px solid var(--line);
-  }
-  .lang-switch button {
-    background: transparent; border: 0; cursor: pointer;
-    padding: 5px 14px; font-size: 12px;
-    color: var(--ink-soft); border-radius: 999px;
-    font-weight: 500; letter-spacing: 0.02em;
-    font-family: inherit;
-  }
-  .lang-switch button.on { background: var(--cream-soft); color: var(--sage-ink); }
 
   .about-head { max-width: 680px; margin-bottom: 48px; }
   .about-eyebrow { display: inline-block; margin-bottom: 14px; }
@@ -109,13 +52,7 @@
     line-height: 1.6; font-weight: 400;
   }
 
-  .page-foot {
-    text-align: center; padding: 28px 0 0;
-    color: var(--ink-hint); font-size: 12px;
-    border-top: 0.5px solid var(--line);
-    margin-top: 72px; line-height: 1.8;
-  }
-  .soft-italic { font-style: italic; color: var(--sage-deep); }
+  .page-foot { margin-top: 72px; }
 </style>
 </head>
 <body>
