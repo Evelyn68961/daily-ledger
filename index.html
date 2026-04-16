@@ -234,13 +234,27 @@
     width: 100%; height: auto; display: block;
     aspect-ratio: 1000 / 320;
   }
-  .garden-svg .plant { cursor: pointer; transition: transform 0.2s ease; transform-origin: center bottom; transform-box: fill-box; }
-  .garden-svg .plant:hover { transform: translateY(-3px); }
+  .garden-svg .plant { cursor: pointer; }
   .garden-legend {
     font-size: 11px; color: var(--ink-hint);
     margin-top: 12px; text-align: center; font-style: italic;
     letter-spacing: 0.02em;
   }
+  .garden-chip {
+    position: absolute; pointer-events: none;
+    background: var(--card); border: 0.5px solid var(--line);
+    border-radius: 10px; padding: 7px 11px;
+    font-size: 11px; line-height: 1.4; color: var(--ink);
+    box-shadow: 0 4px 14px rgba(45, 62, 42, 0.12);
+    opacity: 0; transition: opacity 0.15s;
+    white-space: nowrap; max-width: 90%;
+    z-index: 10; transform: translateX(-50%);
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+  .garden-chip.on { opacity: 1; }
+  .garden-chip .chip-meta { color: var(--ink-soft); font-size: 10.5px; }
+  .garden-chip .chip-amt { color: var(--exp); font-weight: 600; margin-top: 1px; }
 
   .foot-bar {
     display: flex; justify-content: center; gap: 8px;
@@ -447,8 +461,9 @@
     </div>
     <div class="garden-wrap">
       <svg id="garden" class="garden-svg" viewBox="0 0 1000 320" preserveAspectRatio="xMidYMax meet"></svg>
+      <div id="garden-chip" class="garden-chip" role="status" aria-live="polite"></div>
     </div>
-    <p class="garden-legend" id="garden-legend">滑鼠移到植物上可以看到那筆支出</p>
+    <p class="garden-legend" id="garden-legend">點擊植物,查看那筆支出</p>
   </div>
 
   <div class="foot-bar">
@@ -492,7 +507,7 @@ const I18N = {
     labelCat: 'Category · 分類', submit: '記下這一筆',
     hist: '近期的紀錄',
     garden: '花園', gardenSub: '每一筆支出,種下一棵',
-    gardenLegend: '滑鼠移到植物上可以看到那筆支出',
+    gardenLegend: '點擊植物,查看那筆支出',
     emptyGarden: '花園還空著,新增一筆支出,種下第一棵',
     count: (n) => n + ' 筆', clearFilter: '清除',
     emptyList: '這裡還空空的,從旁邊新增第一筆吧',
@@ -520,7 +535,7 @@ const I18N = {
     labelCat: 'Category', submit: 'Plant this entry',
     hist: 'Recent entries',
     garden: 'Garden', gardenSub: 'one plant per expense',
-    gardenLegend: 'Hover a plant to see its entry',
+    gardenLegend: 'Tap a plant to see its entry',
     emptyGarden: 'The garden is empty — add an expense to plant your first',
     count: (n) => n + (n === 1 ? ' entry' : ' entries'), clearFilter: 'clear',
     emptyList: 'Nothing here yet — add your first entry from the left',
@@ -734,9 +749,20 @@ const PLANTS = {
   ]
 };
 
+// Approx native pixel height per plant (expense index) — used for z-order.
+const PLANT_HEIGHTS = [15, 70, 37, 40, 65, 20, 20];
+// Stable pseudo-random [0,1) from an integer id — decorrelated across adjacent ids.
+function hash01(n) {
+  const x = Math.sin(n * 9301.7 + 49297.3) * 43758.5453;
+  return x - Math.floor(x);
+}
+
 function renderGarden() {
   const t = L();
   const svg = document.getElementById('garden');
+  const chip = document.getElementById('garden-chip');
+  if (chip) chip.classList.remove('on');
+
   const now = new Date();
   const ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
   const expenses = state.entries
@@ -747,13 +773,10 @@ function renderGarden() {
   const groundY = vh - 60;
   const parts = [];
 
-  // Ground
   parts.push(`<path d="M0 ${groundY} Q${vw/2} ${groundY-18} ${vw} ${groundY} L${vw} ${vh} L0 ${vh} Z" fill="#D4A574" opacity="0.22"/>`);
   parts.push(`<path d="M0 ${groundY} Q${vw/2} ${groundY-18} ${vw} ${groundY}" stroke="#B88756" stroke-width="0.6" fill="none" opacity="0.5"/>`);
-  // Sun
   parts.push(`<circle cx="880" cy="60" r="22" fill="#E4B984" opacity="0.35"/>`);
   parts.push(`<circle cx="880" cy="60" r="14" fill="#E4B984" opacity="0.5"/>`);
-  // Scattered pebbles
   parts.push(`<ellipse cx="130" cy="${groundY+18}" rx="12" ry="4" fill="#B8A58A" opacity="0.5"/>`);
   parts.push(`<ellipse cx="760" cy="${groundY+22}" rx="10" ry="3.5" fill="#B8A58A" opacity="0.45"/>`);
 
@@ -763,18 +786,24 @@ function renderGarden() {
     const marginL = 80, marginR = 80;
     const usableW = vw - marginL - marginR;
     const n = expenses.length;
-    expenses.forEach((e, i) => {
+    const slotW = n <= 1 ? usableW : usableW / (n - 1);
+    const jitterMax = Math.min(slotW * 0.22, 28);
+    const placements = expenses.map((e, i) => {
       const catIdx = catIndexFor('expense', e.category);
       const plantSvg = PLANTS.expense[catIdx] || PLANTS.expense[PLANTS.expense.length - 1];
+      const plantH = PLANT_HEIGHTS[catIdx] || 20;
       const slotX = n === 1 ? vw / 2 : marginL + (i / (n - 1)) * usableW;
-      const xJitter = (e.id % 37) - 18;
-      const x = Math.max(marginL - 20, Math.min(vw - marginR + 20, slotX + xJitter));
-      const yJitter = (e.id % 11) - 5;
-      const y = groundY + yJitter;
+      const x = slotX + (hash01(e.id) - 0.5) * 2 * jitterMax;
+      const y = groundY + (hash01(e.id + 7919) - 0.5) * 10;
       const amtLog = Math.log(Math.max(10, e.amount));
-      const scale = (0.55 + Math.min(1, amtLog / Math.log(40000)) * 0.95).toFixed(3);
-      const title = e.date + ' · ' + e.category + (e.note ? ' · ' + e.note : '') + ' · ' + fmt(e.amount);
-      parts.push(`<g class="plant" transform="translate(${x.toFixed(1)} ${y}) scale(${scale})"><title>${escapeHtml(title)}</title>${plantSvg}</g>`);
+      const scale = 0.55 + Math.min(1, amtLog / Math.log(40000)) * 0.95;
+      return { e, plantSvg, plantH, x, y, scale };
+    });
+    // Painter's algorithm: taller visual silhouettes render first (behind).
+    placements.sort((a, b) => (b.plantH * b.scale) - (a.plantH * a.scale));
+    placements.forEach(p => {
+      const title = p.e.date + ' · ' + p.e.category + (p.e.note ? ' · ' + p.e.note : '') + ' · ' + fmt(p.e.amount);
+      parts.push(`<g class="plant" data-id="${p.e.id}" transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) scale(${p.scale.toFixed(3)})"><title>${escapeHtml(title)}</title>${p.plantSvg}</g>`);
     });
   }
 
@@ -878,6 +907,32 @@ document.getElementById('fclear').onclick = () => {
 
 document.getElementById('load-sample').onclick = loadSample;
 document.getElementById('export-csv').onclick = exportCsv;
+
+(function setupGardenChip() {
+  const svg = document.getElementById('garden');
+  const chip = document.getElementById('garden-chip');
+  const wrap = document.querySelector('.garden-wrap');
+  if (!svg || !chip || !wrap) return;
+  svg.addEventListener('click', (evt) => {
+    const plant = evt.target.closest('.plant');
+    if (!plant) return;
+    const id = Number(plant.dataset.id);
+    const e = state.entries.find(x => x.id === id);
+    if (!e) return;
+    const info = e.date + ' · ' + e.category + (e.note ? ' · ' + e.note : '');
+    chip.innerHTML = '<div class="chip-meta">' + escapeHtml(info) + '</div>' +
+      '<div class="chip-amt">' + escapeHtml(fmt(e.amount)) + '</div>';
+    const wrapRect = wrap.getBoundingClientRect();
+    const cx = evt.clientX - wrapRect.left;
+    const cy = evt.clientY - wrapRect.top;
+    chip.style.left = Math.max(80, Math.min(wrapRect.width - 80, cx)) + 'px';
+    chip.style.top  = Math.max(8, cy - 52) + 'px';
+    chip.classList.add('on');
+  });
+  document.addEventListener('click', (evt) => {
+    if (!evt.target.closest('.plant')) chip.classList.remove('on');
+  });
+})();
 document.getElementById('clear-all').onclick = () => {
   if (!confirm(L().confirmClear)) return;
   state.entries = [];
