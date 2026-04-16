@@ -62,15 +62,22 @@ entry behind it.
 - **CSV export** in one click — BOM-prefixed for clean Excel open, both
   in Traditional Chinese and English headers.
 - **Load sample** button for an instant demo with realistic entries.
-- **Offline-first.** Open the file, it just works — no install, no sync.
+- **Installable.** Add to home screen on iOS or Android for a full-screen
+  app experience with its own icon.
+- **Offline-first.** A service worker caches the app shell on first visit,
+  so the ledger keeps working with no connection — on a plane, in the
+  subway, anywhere.
 
 ## Under the hood
 
 Three static HTML pages (`index.html`, `analyze.html`, `about.html`)
 share a single `styles.css` for the design system. Data lives in the
-browser's `localStorage`, scoped per device. The only external dependency
-is a CDN chart library used on the Analyze page. No build step, no server,
-no framework — it deploys anywhere that serves static files.
+browser's `localStorage`, scoped per device. A lightweight service worker
+(`sw.js`) with a proper web manifest turns the site into an installable
+PWA — full-screen, branded icon, fully offline. The only external
+dependency is a CDN chart library used on the Analyze page. No build
+step, no server, no framework — it deploys anywhere that serves static
+files.
 
 ## Try it
 
