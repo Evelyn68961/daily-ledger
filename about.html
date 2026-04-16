@@ -133,6 +133,7 @@
     </a>
     <div class="nav-right">
       <a class="nav-link" href="index.html" id="nav-tracker">記錄</a>
+      <a class="nav-link" href="analyze.html" id="nav-analyze">分析</a>
       <div class="lang-switch">
         <button id="lang-zh" class="on">中文</button>
         <button id="lang-en">EN</button>
@@ -180,7 +181,7 @@ const LANG_KEY = 'daily_ledger_lang_v1';
 
 const T = {
   zh: {
-    navTracker: '記錄',
+    navTracker: '記錄', navAnalyze: '分析',
     aboutEyebrow: 'About · 關於',
     aboutTitleA: '關於', aboutTitleB: 'Daily Ledger',
     aboutDesc: '一款溫柔陪伴你記帳的工具。每一筆收支,都是一顆種子;日復一日,它們會長成屬於你的財務花園。簡單、私密、離線可用。',
@@ -192,7 +193,7 @@ const T = {
     footNote: '資料儲存於本機瀏覽器 · Case W2248 · designed & built with care'
   },
   en: {
-    navTracker: 'Tracker',
+    navTracker: 'Tracker', navAnalyze: 'Analyze',
     aboutEyebrow: 'About',
     aboutTitleA: 'About', aboutTitleB: 'Daily Ledger',
     aboutDesc: 'A gentle companion for daily bookkeeping. Every entry is a seed; day by day, they grow into a financial garden of your own. Simple, private, works offline.',
@@ -211,6 +212,7 @@ function apply() {
   const t = T[lang];
   document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
   document.getElementById('nav-tracker').textContent = t.navTracker;
+  document.getElementById('nav-analyze').textContent = t.navAnalyze;
   document.getElementById('about-eyebrow').textContent = t.aboutEyebrow;
   document.getElementById('about-title').innerHTML = t.aboutTitleA + ' <em>' + t.aboutTitleB + '</em>';
   document.getElementById('about-desc').textContent = t.aboutDesc;

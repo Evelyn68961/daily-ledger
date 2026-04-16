@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
   :root {
     --cream: #F4EAD5;
@@ -343,7 +342,23 @@
   }
   .empty-text { font-size: 14px; font-style: italic; font-weight: 400; }
 
-  .chart-wrap { position: relative; height: 280px; margin-top: 10px; }
+  /* ============ GARDEN ============ */
+  .garden-wrap {
+    position: relative; margin-top: 8px;
+    border-radius: 12px; overflow: hidden;
+    background: linear-gradient(180deg, #FAF3E4 0%, #F4EAD5 55%, #EFE0C1 100%);
+  }
+  .garden-svg {
+    width: 100%; height: auto; display: block;
+    aspect-ratio: 1000 / 320;
+  }
+  .garden-svg .plant { cursor: pointer; transition: transform 0.2s ease; transform-origin: center bottom; transform-box: fill-box; }
+  .garden-svg .plant:hover { transform: translateY(-3px); }
+  .garden-legend {
+    font-size: 11px; color: var(--ink-hint);
+    margin-top: 12px; text-align: center; font-style: italic;
+    letter-spacing: 0.02em;
+  }
 
   .foot-bar {
     display: flex; justify-content: center; gap: 8px;
@@ -402,6 +417,7 @@
       <span>Daily Ledger</span>
     </div>
     <div class="nav-right">
+      <a class="nav-link" href="analyze.html" id="nav-analyze">分析</a>
       <a class="nav-link" href="about.html" id="nav-about">關於</a>
       <div class="lang-switch">
         <button id="lang-zh" class="on">中文</button>
@@ -550,14 +566,15 @@
     </div>
   </div>
 
-  <div class="panel reveal d4" id="chart-panel">
+  <div class="panel reveal d4" id="garden-panel">
     <div class="panel-head">
-      <h3 class="panel-title" id="l-chart">支出的去向</h3>
-      <span class="panel-count" id="chart-sub">where does it go?</span>
+      <h3 class="panel-title" id="l-garden">花園</h3>
+      <span class="panel-count" id="garden-sub">每一筆支出,種下一棵</span>
     </div>
-    <div class="chart-wrap">
-      <canvas id="chart"></canvas>
+    <div class="garden-wrap">
+      <svg id="garden" class="garden-svg" viewBox="0 0 1000 320" preserveAspectRatio="xMidYMax meet"></svg>
     </div>
+    <p class="garden-legend" id="garden-legend">滑鼠移到植物上可以看到那筆支出</p>
   </div>
 
   <div class="foot-bar">
@@ -586,6 +603,7 @@ function saveEntries(arr) { localStorage.setItem(STORE_KEY, JSON.stringify(arr))
 
 const I18N = {
   zh: {
+    navAnalyze: '分析',
     navAbout: '關於',
     heroEyebrow: '每日一筆 · 日漸成林',
     heroTitleA: '為你的金錢', heroTitleB: '種一座花園',
@@ -598,10 +616,12 @@ const I18N = {
     add: '新增一筆', expense: '支出', income: '收入',
     amount: '金額', note: '備註(選填)',
     labelCat: 'Category · 分類', submit: '記下這一筆',
-    hist: '近期的紀錄', chart: '支出的去向', chartSub: 'where does it go?',
+    hist: '近期的紀錄',
+    garden: '花園', gardenSub: '每一筆支出,種下一棵',
+    gardenLegend: '滑鼠移到植物上可以看到那筆支出',
+    emptyGarden: '花園還空著,新增一筆支出,種下第一棵',
     count: (n) => n + ' 筆', clearFilter: '清除',
     emptyList: '這裡還空空的,從旁邊新增第一筆吧',
-    emptyChart: '新增一些支出,花園才會長出來',
     loadSample: '載入範例', exportCsv: '匯出 CSV', clearAll: '清除全部',
     confirmClear: '確定要清除全部資料嗎?',
     footTag: 'a tiny garden for your money',
@@ -611,6 +631,7 @@ const I18N = {
     currency: 'NT$'
   },
   en: {
+    navAnalyze: 'Analyze',
     navAbout: 'About',
     heroEyebrow: 'One entry a day · A garden grows',
     heroTitleA: 'Grow a', heroTitleB: 'garden with your money',
@@ -623,10 +644,12 @@ const I18N = {
     add: 'Add an entry', expense: 'Expense', income: 'Income',
     amount: 'Amount', note: 'Note (optional)',
     labelCat: 'Category', submit: 'Plant this entry',
-    hist: 'Recent entries', chart: 'Where it goes', chartSub: 'where does it go?',
+    hist: 'Recent entries',
+    garden: 'Garden', gardenSub: 'one plant per expense',
+    gardenLegend: 'Hover a plant to see its entry',
+    emptyGarden: 'The garden is empty — add an expense to plant your first',
     count: (n) => n + (n === 1 ? ' entry' : ' entries'), clearFilter: 'clear',
     emptyList: 'Nothing here yet — add your first entry from the left',
-    emptyChart: 'Add some expenses to see your garden grow',
     loadSample: 'Load sample', exportCsv: 'Export CSV', clearAll: 'Clear all',
     confirmClear: 'Clear all data?',
     footTag: 'a tiny garden for your money',
@@ -645,7 +668,6 @@ let state = {
   filterStart: '',
   filterEnd: ''
 };
-let chart = null;
 
 function L() { return I18N[state.lang]; }
 function fmt(n) { return L().currency + ' ' + Math.round(n).toLocaleString(); }
@@ -681,17 +703,19 @@ const ICONS = {
   ]
 };
 
-function iconFor(type, category) {
+function catIndexFor(type, category) {
   const key = type === 'expense' ? 'catsExp' : 'catsInc';
   let i = I18N.zh[key].indexOf(category);
   if (i === -1) i = I18N.en[key].indexOf(category);
   if (i === -1) i = ICONS[type].length - 1;
-  return ICONS[type][i] || '';
+  return i;
 }
+function iconFor(type, category) { return ICONS[type][catIndexFor(type, category)] || ''; }
 
 function applyLang() {
   document.documentElement.lang = state.lang === 'zh' ? 'zh-Hant' : 'en';
   const t = L();
+  document.getElementById('nav-analyze').textContent = t.navAnalyze;
   document.getElementById('nav-about').textContent = t.navAbout;
   document.getElementById('hero-eyebrow').textContent = t.heroEyebrow;
   document.getElementById('hero-title').innerHTML = t.heroTitleA + '<br><em>' + t.heroTitleB + '</em>';
@@ -711,8 +735,9 @@ function applyLang() {
   document.getElementById('l-cat').textContent = t.labelCat;
   document.getElementById('submit').textContent = t.submit;
   document.getElementById('l-hist').textContent = t.hist;
-  document.getElementById('l-chart').textContent = t.chart;
-  document.getElementById('chart-sub').textContent = t.chartSub;
+  document.getElementById('l-garden').textContent = t.garden;
+  document.getElementById('garden-sub').textContent = t.gardenSub;
+  document.getElementById('garden-legend').textContent = t.gardenLegend;
   document.getElementById('fclear').textContent = t.clearFilter;
   document.getElementById('load-sample').textContent = t.loadSample;
   document.getElementById('export-csv').textContent = t.exportCsv;
@@ -815,70 +840,74 @@ function renderList() {
   });
 }
 
-function renderChart() {
+// Each plant draws its base at (0,0), growing upward (negative y). Anchors on the ground line.
+const PLANTS = {
+  expense: [
+    // 0 — Food · leafy vegetable
+    '<ellipse cx="-7" cy="-4" rx="7" ry="5" fill="#7A8C6C"/><ellipse cx="7" cy="-4" rx="7" ry="5" fill="#7A8C6C"/><ellipse cx="0" cy="-11" rx="9" ry="7" fill="#A8B89A"/><ellipse cx="-4" cy="-13" rx="4" ry="3" fill="#8B9A7C"/><ellipse cx="4" cy="-13" rx="4" ry="3" fill="#8B9A7C"/>',
+    // 1 — Transport · cypress
+    '<path d="M-2 0 L-3 -18 L-4 -38 L-3 -58 L0 -70 L3 -58 L4 -38 L3 -18 L2 0 Z" fill="#5D6E4D"/><path d="M0 -70 L0 -5" stroke="#3D4F3B" stroke-width="0.6" opacity="0.5"/>',
+    // 2 — Shopping · tulip
+    '<path d="M0 0 L0 -28" stroke="#7A8C6C" stroke-width="1.2" stroke-linecap="round"/><ellipse cx="-7" cy="-13" rx="5" ry="2" fill="#7A8C6C" transform="rotate(-28 -7 -13)"/><ellipse cx="6" cy="-18" rx="4" ry="2" fill="#8B9A7C" transform="rotate(30 6 -18)"/><path d="M-6 -28 Q-7 -36 0 -37 Q7 -36 6 -28 Q3 -25 0 -29 Q-3 -25 -6 -28 Z" fill="#D4A574"/><path d="M-3 -30 Q0 -34 3 -30" stroke="#B88756" stroke-width="0.6" fill="none"/>',
+    // 3 — Leisure · daisy
+    '<path d="M0 0 L0 -32" stroke="#7A8C6C" stroke-width="1"/><ellipse cx="6" cy="-14" rx="4" ry="1.8" fill="#8B9A7C" transform="rotate(22 6 -14)"/><g transform="translate(0 -32)"><ellipse cx="0" cy="-6" rx="2.5" ry="4.5" fill="#FAF3E4"/><ellipse cx="0" cy="6" rx="2.5" ry="4.5" fill="#FAF3E4"/><ellipse cx="6" cy="0" rx="4.5" ry="2.5" fill="#FAF3E4"/><ellipse cx="-6" cy="0" rx="4.5" ry="2.5" fill="#FAF3E4"/><ellipse cx="4.5" cy="-4.5" rx="3.5" ry="2" fill="#FAF3E4" transform="rotate(-45 4.5 -4.5)"/><ellipse cx="-4.5" cy="-4.5" rx="3.5" ry="2" fill="#FAF3E4" transform="rotate(45 -4.5 -4.5)"/><ellipse cx="4.5" cy="4.5" rx="3.5" ry="2" fill="#FAF3E4" transform="rotate(45 4.5 4.5)"/><ellipse cx="-4.5" cy="4.5" rx="3.5" ry="2" fill="#FAF3E4" transform="rotate(-45 -4.5 4.5)"/><circle cx="0" cy="0" r="2.8" fill="#E4B984"/></g>',
+    // 4 — Housing · oak
+    '<rect x="-3" y="-32" width="6" height="32" fill="#8B5C3F"/><path d="M-3 -32 L3 -32 L3 -4 L-3 -4 Z" fill="#7A5C3F" opacity="0.3"/><circle cx="0" cy="-44" r="19" fill="#7A8C6C"/><circle cx="-13" cy="-40" r="13" fill="#A8B89A"/><circle cx="13" cy="-40" r="13" fill="#A8B89A"/><circle cx="-6" cy="-54" r="11" fill="#8B9A7C"/><circle cx="9" cy="-54" r="10" fill="#8B9A7C"/><circle cx="0" cy="-60" r="8" fill="#7A8C6C"/>',
+    // 5 — Medical · mushroom
+    '<rect x="-3" y="-11" width="6" height="11" rx="1" fill="#FAF3E4"/><ellipse cx="0" cy="-11" rx="11" ry="9" fill="#B5634A"/><ellipse cx="-1" cy="-13" rx="10" ry="7" fill="#D06850"/><circle cx="-5" cy="-15" r="1.4" fill="#FAF3E4"/><circle cx="3" cy="-12" r="1.1" fill="#FAF3E4"/><circle cx="5" cy="-16" r="0.9" fill="#FAF3E4"/>',
+    // 6 — Other · clover shrub
+    '<circle cx="0" cy="-9" r="9" fill="#7A8C6C"/><circle cx="-6" cy="-11" r="6" fill="#A8B89A"/><circle cx="6" cy="-11" r="6" fill="#A8B89A"/><circle cx="0" cy="-15" r="5" fill="#8B9A7C"/>'
+  ]
+};
+
+function renderGarden() {
   const t = L();
-  const ctx = document.getElementById('chart');
-  const filtered = getFiltered().filter(e => e.type === 'expense');
-  const bucket = {};
-  filtered.forEach(e => { bucket[e.category] = (bucket[e.category] || 0) + e.amount; });
-  const labels = Object.keys(bucket);
-  const data = Object.values(bucket);
-  const palette = ['#7A8C6C','#D4A574','#B5634A','#A8B89A','#C9A961','#8B5C3F','#5D6E4D','#E4B984'];
+  const svg = document.getElementById('garden');
+  const now = new Date();
+  const ym = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  const expenses = state.entries
+    .filter(e => e.type === 'expense' && e.date.startsWith(ym))
+    .sort((a, b) => a.date.localeCompare(b.date) || a.id - b.id);
 
-  if (chart) { chart.destroy(); chart = null; }
+  const vw = 1000, vh = 320;
+  const groundY = vh - 60;
+  const parts = [];
 
-  if (labels.length === 0) {
-    const c = ctx.getContext('2d');
-    c.clearRect(0, 0, ctx.width, ctx.height);
-    c.fillStyle = '#9AA68E';
-    c.font = 'italic 14px Manrope, "Noto Sans TC", sans-serif';
-    c.textAlign = 'center';
-    c.fillText(t.emptyChart, ctx.width/2, ctx.height/2);
-    return;
+  // Ground
+  parts.push(`<path d="M0 ${groundY} Q${vw/2} ${groundY-18} ${vw} ${groundY} L${vw} ${vh} L0 ${vh} Z" fill="#D4A574" opacity="0.22"/>`);
+  parts.push(`<path d="M0 ${groundY} Q${vw/2} ${groundY-18} ${vw} ${groundY}" stroke="#B88756" stroke-width="0.6" fill="none" opacity="0.5"/>`);
+  // Sun
+  parts.push(`<circle cx="880" cy="60" r="22" fill="#E4B984" opacity="0.35"/>`);
+  parts.push(`<circle cx="880" cy="60" r="14" fill="#E4B984" opacity="0.5"/>`);
+  // Scattered pebbles
+  parts.push(`<ellipse cx="130" cy="${groundY+18}" rx="12" ry="4" fill="#B8A58A" opacity="0.5"/>`);
+  parts.push(`<ellipse cx="760" cy="${groundY+22}" rx="10" ry="3.5" fill="#B8A58A" opacity="0.45"/>`);
+
+  if (expenses.length === 0) {
+    parts.push(`<text x="${vw/2}" y="${vh/2}" text-anchor="middle" fill="#9AA68E" font-size="15" font-style="italic" font-family="Manrope, 'Noto Sans TC', sans-serif">${escapeHtml(t.emptyGarden)}</text>`);
+  } else {
+    const marginL = 80, marginR = 80;
+    const usableW = vw - marginL - marginR;
+    const n = expenses.length;
+    expenses.forEach((e, i) => {
+      const catIdx = catIndexFor('expense', e.category);
+      const plantSvg = PLANTS.expense[catIdx] || PLANTS.expense[PLANTS.expense.length - 1];
+      const slotX = n === 1 ? vw / 2 : marginL + (i / (n - 1)) * usableW;
+      const xJitter = (e.id % 37) - 18;
+      const x = Math.max(marginL - 20, Math.min(vw - marginR + 20, slotX + xJitter));
+      const yJitter = (e.id % 11) - 5;
+      const y = groundY + yJitter;
+      const amtLog = Math.log(Math.max(10, e.amount));
+      const scale = (0.55 + Math.min(1, amtLog / Math.log(40000)) * 0.95).toFixed(3);
+      const title = e.date + ' · ' + e.category + (e.note ? ' · ' + e.note : '') + ' · ' + fmt(e.amount);
+      parts.push(`<g class="plant" transform="translate(${x.toFixed(1)} ${y}) scale(${scale})"><title>${escapeHtml(title)}</title>${plantSvg}</g>`);
+    });
   }
 
-  chart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: data,
-        backgroundColor: palette.slice(0, labels.length),
-        borderWidth: 3,
-        borderColor: '#FBF5E7'
-      }]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false, cutout: '62%',
-      plugins: {
-        legend: {
-          position: 'right',
-          labels: {
-            font: { size: 13, family: "Manrope, 'Noto Sans TC', sans-serif", weight: '500' },
-            boxWidth: 12, padding: 12,
-            color: '#5D6E4D'
-          }
-        },
-        tooltip: {
-          backgroundColor: '#2D3E2A',
-          titleFont: { family: "Manrope, 'Noto Sans TC', sans-serif", size: 13, weight: '600' },
-          bodyFont: { family: "Manrope, 'Noto Sans TC', sans-serif", size: 13 },
-          padding: 12,
-          cornerRadius: 8,
-          callbacks: {
-            label: (ctx) => {
-              const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
-              const pct = total ? Math.round(ctx.raw / total * 100) : 0;
-              return '  ' + fmt(ctx.raw) + '  ·  ' + pct + '%';
-            }
-          }
-        }
-      }
-    }
-  });
+  svg.innerHTML = parts.join('');
 }
 
-function render() { renderStats(); renderList(); renderChart(); }
+function render() { renderStats(); renderList(); renderGarden(); }
 
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

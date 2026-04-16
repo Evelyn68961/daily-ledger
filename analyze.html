@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Analyze · Daily Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --cream: #F4EAD5;
+    --cream-deep: #EDDEC0;
+    --cream-soft: #FAF3E4;
+    --sage: #A8B89A;
+    --sage-deep: #7A8C6C;
+    --sage-ink: #2D3E2A;
+    --clay: #D4A574;
+    --clay-ink: #7A5C3F;
+    --ink: #1F2B1D;
+    --ink-soft: #5D6E4D;
+    --ink-hint: #9AA68E;
+    --line: #DDD1B5;
+    --line-soft: #E8DEC4;
+    --card: #FBF5E7;
+    --inc: #5A7A4E;
+    --exp: #B5634A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Manrope', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ink); background: var(--cream); line-height: 1.5;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 15% 50%, rgba(168, 184, 154, 0.08) 0%, transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(212, 165, 116, 0.10) 0%, transparent 40%);
+    min-height: 100vh;
+  }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--clay-ink);
+  }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 28px 80px; }
+
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 56px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 16px; color: var(--sage-ink);
+    letter-spacing: -0.01em; text-decoration: none;
+  }
+  .logo-mark { width: 34px; height: 34px; }
+  .nav-right { display: flex; align-items: center; gap: 18px; }
+  .nav-link {
+    font-size: 13px; color: var(--ink-soft); text-decoration: none;
+    font-weight: 500; letter-spacing: 0.02em;
+    transition: color 0.15s;
+  }
+  .nav-link:hover { color: var(--sage-ink); }
+  .lang-switch {
+    display: flex; gap: 2px; background: var(--cream-deep);
+    padding: 3px; border-radius: 999px; border: 0.5px solid var(--line);
+  }
+  .lang-switch button {
+    background: transparent; border: 0; cursor: pointer;
+    padding: 5px 14px; font-size: 12px;
+    color: var(--ink-soft); border-radius: 999px;
+    font-weight: 500; letter-spacing: 0.02em;
+    font-family: inherit;
+  }
+  .lang-switch button.on { background: var(--cream-soft); color: var(--sage-ink); }
+
+  .page-head { margin-bottom: 28px; }
+  .page-eyebrow { display: inline-block; margin-bottom: 12px; }
+  .page-title {
+    font-weight: 600; font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.15; color: var(--sage-ink);
+    letter-spacing: -0.02em;
+  }
+  .page-title em {
+    font-style: italic; font-weight: 400; color: var(--clay-ink);
+  }
+
+  .panel {
+    background: var(--card); border: 0.5px solid var(--line);
+    border-radius: 16px; padding: 24px 26px;
+    margin-bottom: 20px;
+  }
+  .panel-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .panel-title {
+    font-weight: 600; font-size: 16px;
+    color: var(--sage-ink); letter-spacing: -0.01em;
+  }
+  .panel-count {
+    font-size: 12px; color: var(--ink-hint);
+    font-weight: 400; font-style: italic;
+  }
+
+  .filters {
+    display: flex; gap: 8px; align-items: center;
+    margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .field {
+    padding: 7px 10px;
+    border: 0.5px solid var(--line); border-radius: 10px;
+    background: var(--cream-soft);
+    font-size: 12px; color: var(--ink);
+    outline: none; transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
+  }
+  .field:focus { border-color: var(--sage-deep); background: var(--card); }
+  .filters .field { flex: 1; min-width: 140px; }
+  .filters .separator { color: var(--ink-hint); font-size: 12px; font-style: italic; }
+  .filters .btn-mini {
+    background: transparent; border: 0;
+    color: var(--ink-hint); cursor: pointer;
+    font-size: 12px; font-weight: 500;
+    padding: 6px 10px; font-family: inherit;
+    border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .filters .btn-mini:hover { color: var(--exp); background: var(--cream-deep); }
+
+  .stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 14px; margin-bottom: 20px;
+  }
+  @media (max-width: 600px) { .stats { grid-template-columns: 1fr; gap: 10px; } }
+  .stat {
+    background: var(--card); border: 0.5px solid var(--line);
+    border-radius: 16px; padding: 20px 22px;
+    position: relative; overflow: hidden;
+  }
+  .stat::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 3px;
+    background: var(--sage); opacity: 0.5;
+  }
+  .stat.exp::after { background: var(--exp); }
+  .stat.bal::after { background: var(--clay); }
+  .stat-lbl {
+    font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--ink-soft); margin-bottom: 6px; font-weight: 500;
+  }
+  .stat-val {
+    font-weight: 600; font-size: 24px;
+    color: var(--sage-ink);
+    letter-spacing: -0.02em; line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat.inc .stat-val { color: var(--inc); }
+  .stat.exp .stat-val { color: var(--exp); }
+
+  .chart-wrap { position: relative; height: 340px; margin-top: 10px; }
+  .chart-empty {
+    display: flex; align-items: center; justify-content: center;
+    height: 340px; color: var(--ink-hint);
+    font-size: 14px; font-style: italic;
+  }
+
+  .page-foot {
+    text-align: center; padding: 28px 0 0;
+    color: var(--ink-hint); font-size: 12px;
+    border-top: 0.5px solid var(--line);
+    margin-top: 48px; line-height: 1.8;
+  }
+  .soft-italic { font-style: italic; color: var(--sage-deep); }
+</style>
+</head>
+<body>
+
+<section class="wrap">
+  <nav class="nav">
+    <a class="logo" href="index.html">
+      <svg class="logo-mark" viewBox="0 0 40 40" fill="none">
+        <path d="M20 6 Q12 14 11 24 Q11 32 20 34 Q29 32 29 24 Q28 14 20 6 Z" fill="#A8B89A" opacity="0.9"/>
+        <path d="M20 10 L20 34" stroke="#5D6E4D" stroke-width="0.8" stroke-linecap="round"/>
+        <path d="M20 16 Q15 17 13 22" stroke="#5D6E4D" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+        <path d="M20 22 Q26 23 28 27" stroke="#5D6E4D" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span>Daily Ledger</span>
+    </a>
+    <div class="nav-right">
+      <a class="nav-link" href="index.html" id="nav-tracker">記錄</a>
+      <a class="nav-link" href="about.html" id="nav-about">關於</a>
+      <div class="lang-switch">
+        <button id="lang-zh" class="on">中文</button>
+        <button id="lang-en">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="page-head">
+    <span class="eyebrow page-eyebrow" id="page-eyebrow">Analyze · 分析</span>
+    <h1 class="page-title" id="page-title">支出的 <em>去向</em></h1>
+  </div>
+
+  <div class="stats">
+    <div class="stat inc">
+      <div class="stat-lbl" id="l-inc">Income · 收入</div>
+      <div class="stat-val" id="v-inc">NT$ 0</div>
+    </div>
+    <div class="stat exp">
+      <div class="stat-lbl" id="l-exp">Expense · 支出</div>
+      <div class="stat-val" id="v-exp">NT$ 0</div>
+    </div>
+    <div class="stat bal">
+      <div class="stat-lbl" id="l-bal">Balance · 結餘</div>
+      <div class="stat-val" id="v-bal">NT$ 0</div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head">
+      <h3 class="panel-title" id="l-chart">分類圓餅圖</h3>
+      <span class="panel-count" id="chart-sub">by category</span>
+    </div>
+    <div class="filters">
+      <input type="date" id="fstart" class="field" />
+      <span class="separator">—</span>
+      <input type="date" id="fend" class="field" />
+      <button id="fclear" class="btn-mini" title="清除篩選">清除</button>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+  <div class="page-foot">
+    <p>Daily Ledger · <span class="soft-italic" id="foot-tag">a tiny garden for your money</span></p>
+    <p style="margin-top: 6px;" id="foot-note">資料儲存於本機瀏覽器 · Case W2248</p>
+  </div>
+</section>
+
+<script>
+const STORE_KEY = 'daily_ledger_v1';
+const LANG_KEY  = 'daily_ledger_lang_v1';
+
+function loadEntries() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }
+  catch (e) { return []; }
+}
+
+const T = {
+  zh: {
+    navTracker: '記錄', navAbout: '關於',
+    pageEyebrow: 'Analyze · 分析',
+    pageTitleA: '支出的', pageTitleB: '去向',
+    inc: 'Income · 收入', exp: 'Expense · 支出', bal: 'Balance · 結餘',
+    chart: '分類圓餅圖', chartSub: '按分類比例',
+    emptyChart: '這段時間還沒有支出紀錄',
+    clearFilter: '清除',
+    footTag: 'a tiny garden for your money',
+    footNote: '資料儲存於本機瀏覽器 · Case W2248',
+    currency: 'NT$'
+  },
+  en: {
+    navTracker: 'Tracker', navAbout: 'About',
+    pageEyebrow: 'Analyze',
+    pageTitleA: 'Where your money', pageTitleB: 'goes',
+    inc: 'Income', exp: 'Expense', bal: 'Balance',
+    chart: 'Category breakdown', chartSub: 'by category',
+    emptyChart: 'No expenses in this range yet',
+    clearFilter: 'clear',
+    footTag: 'a tiny garden for your money',
+    footNote: 'Data stored in your browser · Case W2248',
+    currency: 'NT$'
+  }
+};
+
+let lang = localStorage.getItem(LANG_KEY) || 'zh';
+let entries = loadEntries();
+let filterStart = '';
+let filterEnd = '';
+let chart = null;
+
+function L() { return T[lang]; }
+function fmt(n) { return L().currency + ' ' + Math.round(n).toLocaleString(); }
+
+function getFiltered() {
+  return entries.filter(e => {
+    if (filterStart && e.date < filterStart) return false;
+    if (filterEnd && e.date > filterEnd) return false;
+    return true;
+  });
+}
+
+function applyLang() {
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+  const t = L();
+  document.getElementById('nav-tracker').textContent = t.navTracker;
+  document.getElementById('nav-about').textContent = t.navAbout;
+  document.getElementById('page-eyebrow').textContent = t.pageEyebrow;
+  document.getElementById('page-title').innerHTML = t.pageTitleA + ' <em>' + t.pageTitleB + '</em>';
+  document.getElementById('l-inc').textContent = t.inc;
+  document.getElementById('l-exp').textContent = t.exp;
+  document.getElementById('l-bal').textContent = t.bal;
+  document.getElementById('l-chart').textContent = t.chart;
+  document.getElementById('chart-sub').textContent = t.chartSub;
+  document.getElementById('fclear').textContent = t.clearFilter;
+  document.getElementById('foot-tag').textContent = t.footTag;
+  document.getElementById('foot-note').textContent = t.footNote;
+  document.getElementById('lang-zh').classList.toggle('on', lang === 'zh');
+  document.getElementById('lang-en').classList.toggle('on', lang === 'en');
+}
+
+function renderStats() {
+  const filtered = getFiltered();
+  let inc = 0, exp = 0;
+  filtered.forEach(e => { if (e.type === 'income') inc += e.amount; else exp += e.amount; });
+  document.getElementById('v-inc').textContent = fmt(inc);
+  document.getElementById('v-exp').textContent = fmt(exp);
+  const bal = inc - exp;
+  const balEl = document.getElementById('v-bal');
+  balEl.textContent = fmt(bal);
+  balEl.style.color = bal >= 0 ? 'var(--sage-ink)' : 'var(--exp)';
+}
+
+function renderChart() {
+  const t = L();
+  const ctx = document.getElementById('chart');
+  const filtered = getFiltered().filter(e => e.type === 'expense');
+  const bucket = {};
+  filtered.forEach(e => { bucket[e.category] = (bucket[e.category] || 0) + e.amount; });
+  const labels = Object.keys(bucket);
+  const data = Object.values(bucket);
+  const palette = ['#7A8C6C', '#D4A574', '#B5634A', '#A8B89A', '#C9A961', '#8B5C3F', '#5D6E4D', '#E4B984'];
+
+  if (chart) { chart.destroy(); chart = null; }
+
+  if (labels.length === 0) {
+    const c = ctx.getContext('2d');
+    c.clearRect(0, 0, ctx.width, ctx.height);
+    c.fillStyle = '#9AA68E';
+    c.font = 'italic 14px Manrope, "Noto Sans TC", sans-serif';
+    c.textAlign = 'center';
+    c.fillText(t.emptyChart, ctx.width / 2, ctx.height / 2);
+    return;
+  }
+
+  chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: palette.slice(0, labels.length),
+        borderWidth: 3,
+        borderColor: '#FBF5E7'
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            font: { size: 13, family: "Manrope, 'Noto Sans TC', sans-serif", weight: '500' },
+            boxWidth: 12, padding: 12, color: '#5D6E4D'
+          }
+        },
+        tooltip: {
+          backgroundColor: '#2D3E2A',
+          titleFont: { family: "Manrope, 'Noto Sans TC', sans-serif", size: 13, weight: '600' },
+          bodyFont: { family: "Manrope, 'Noto Sans TC', sans-serif", size: 13 },
+          padding: 12, cornerRadius: 8,
+          callbacks: {
+            label: (ctx) => {
+              const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+              const pct = total ? Math.round(ctx.raw / total * 100) : 0;
+              return '  ' + fmt(ctx.raw) + '  ·  ' + pct + '%';
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function render() { renderStats(); renderChart(); }
+
+document.getElementById('lang-zh').onclick = () => { lang = 'zh'; localStorage.setItem(LANG_KEY, 'zh'); applyLang(); render(); };
+document.getElementById('lang-en').onclick = () => { lang = 'en'; localStorage.setItem(LANG_KEY, 'en'); applyLang(); render(); };
+
+document.getElementById('fstart').onchange = (e) => { filterStart = e.target.value; render(); };
+document.getElementById('fend').onchange   = (e) => { filterEnd   = e.target.value; render(); };
+document.getElementById('fclear').onclick = () => {
+  filterStart = ''; filterEnd = '';
+  document.getElementById('fstart').value = '';
+  document.getElementById('fend').value = '';
+  render();
+};
+
+// Default date range: current month
+const now = new Date();
+const y = now.getFullYear(), m = String(now.getMonth() + 1).padStart(2, '0');
+const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+filterStart = y + '-' + m + '-01';
+filterEnd   = y + '-' + m + '-' + String(lastDay).padStart(2, '0');
+document.getElementById('fstart').value = filterStart;
+document.getElementById('fend').value   = filterEnd;
+
+applyLang();
+render();
+</script>
+</body>
+</html>
