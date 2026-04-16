@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>About · Daily Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F4EAD5;
+    --cream-deep: #EDDEC0;
+    --cream-soft: #FAF3E4;
+    --sage: #A8B89A;
+    --sage-deep: #7A8C6C;
+    --sage-ink: #2D3E2A;
+    --clay-ink: #7A5C3F;
+    --ink: #1F2B1D;
+    --ink-soft: #5D6E4D;
+    --ink-hint: #9AA68E;
+    --line: #DDD1B5;
+    --card: #FBF5E7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Manrope', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--ink); background: var(--cream); line-height: 1.5;
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    background-image:
+      radial-gradient(circle at 15% 50%, rgba(168, 184, 154, 0.08) 0%, transparent 45%),
+      radial-gradient(circle at 85% 20%, rgba(212, 165, 116, 0.10) 0%, transparent 40%);
+    min-height: 100vh;
+  }
+
+  .eyebrow {
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--clay-ink);
+  }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 28px 80px; }
+
+  .nav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 72px;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 16px; color: var(--sage-ink);
+    letter-spacing: -0.01em; text-decoration: none;
+  }
+  .logo-mark { width: 34px; height: 34px; }
+  .nav-right { display: flex; align-items: center; gap: 18px; }
+  .nav-link {
+    font-size: 13px; color: var(--ink-soft); text-decoration: none;
+    font-weight: 500; letter-spacing: 0.02em;
+    transition: color 0.15s;
+  }
+  .nav-link:hover { color: var(--sage-ink); }
+  .lang-switch {
+    display: flex; gap: 2px; background: var(--cream-deep);
+    padding: 3px; border-radius: 999px; border: 0.5px solid var(--line);
+  }
+  .lang-switch button {
+    background: transparent; border: 0; cursor: pointer;
+    padding: 5px 14px; font-size: 12px;
+    color: var(--ink-soft); border-radius: 999px;
+    font-weight: 500; letter-spacing: 0.02em;
+    font-family: inherit;
+  }
+  .lang-switch button.on { background: var(--cream-soft); color: var(--sage-ink); }
+
+  .about-head { max-width: 680px; margin-bottom: 48px; }
+  .about-eyebrow { display: inline-block; margin-bottom: 14px; }
+  .about-title {
+    font-weight: 600; font-size: clamp(32px, 4.5vw, 44px);
+    line-height: 1.15; color: var(--sage-ink);
+    margin-bottom: 20px; letter-spacing: -0.02em;
+  }
+  .about-title em {
+    font-style: italic; font-weight: 400; color: var(--clay-ink);
+  }
+  .about-desc {
+    font-size: 16px; color: var(--ink-soft);
+    line-height: 1.7; font-weight: 400;
+  }
+
+  .feat-ribbon {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: var(--line);
+    border: 0.5px solid var(--line); border-radius: 16px;
+    overflow: hidden;
+  }
+  @media (max-width: 720px) { .feat-ribbon { grid-template-columns: repeat(2, 1fr); } }
+  .feat {
+    background: var(--cream-soft); padding: 24px 26px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .feat-icon { color: var(--sage-deep); margin-bottom: 6px; }
+  .feat-label {
+    font-weight: 600; font-size: 15px;
+    color: var(--sage-ink); letter-spacing: -0.005em;
+  }
+  .feat-desc {
+    font-size: 13px; color: var(--ink-soft);
+    line-height: 1.6; font-weight: 400;
+  }
+
+  .page-foot {
+    text-align: center; padding: 28px 0 0;
+    color: var(--ink-hint); font-size: 12px;
+    border-top: 0.5px solid var(--line);
+    margin-top: 72px; line-height: 1.8;
+  }
+  .soft-italic { font-style: italic; color: var(--sage-deep); }
+</style>
+</head>
+<body>
+
+<section class="wrap">
+  <nav class="nav">
+    <a class="logo" href="index.html">
+      <svg class="logo-mark" viewBox="0 0 40 40" fill="none">
+        <path d="M20 6 Q12 14 11 24 Q11 32 20 34 Q29 32 29 24 Q28 14 20 6 Z" fill="#A8B89A" opacity="0.9"/>
+        <path d="M20 10 L20 34" stroke="#5D6E4D" stroke-width="0.8" stroke-linecap="round"/>
+        <path d="M20 16 Q15 17 13 22" stroke="#5D6E4D" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+        <path d="M20 22 Q26 23 28 27" stroke="#5D6E4D" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+      </svg>
+      <span>Daily Ledger</span>
+    </a>
+    <div class="nav-right">
+      <a class="nav-link" href="index.html" id="nav-tracker">記錄</a>
+      <div class="lang-switch">
+        <button id="lang-zh" class="on">中文</button>
+        <button id="lang-en">EN</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="about-head">
+    <span class="eyebrow about-eyebrow" id="about-eyebrow">About · 關於</span>
+    <h1 class="about-title" id="about-title">關於 <em>Daily Ledger</em></h1>
+    <p class="about-desc" id="about-desc">一款溫柔陪伴你記帳的工具。每一筆收支,都是一顆種子;日復一日,它們會長成屬於你的財務花園。簡單、私密、離線可用。</p>
+  </div>
+
+  <div class="feat-ribbon">
+    <div class="feat">
+      <svg class="feat-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10h14M10 3v14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <div class="feat-label" id="feat1-label">一秒記錄</div>
+      <div class="feat-desc" id="feat1-desc">快速新增收入或支出,12 種預設分類</div>
+    </div>
+    <div class="feat">
+      <svg class="feat-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.3"/><path d="M10 3v7l5 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      <div class="feat-label" id="feat2-label">自動結算</div>
+      <div class="feat-desc" id="feat2-desc">每月收支與結餘,一眼看清</div>
+    </div>
+    <div class="feat">
+      <svg class="feat-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17l5-8 4 5 5-9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="feat-label" id="feat3-label">視覺化分析</div>
+      <div class="feat-desc" id="feat3-desc">分類圓餅圖,看見金錢的流向</div>
+    </div>
+    <div class="feat">
+      <svg class="feat-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 5h12v10H4z" stroke="currentColor" stroke-width="1.3"/><path d="M10 8v5M7 10l3 3 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="feat-label" id="feat4-label">匯出 CSV</div>
+      <div class="feat-desc" id="feat4-desc">一鍵下載,備份或轉入 Excel</div>
+    </div>
+  </div>
+
+  <div class="page-foot">
+    <p>Daily Ledger · <span class="soft-italic" id="foot-tag">a tiny garden for your money</span></p>
+    <p style="margin-top: 6px;" id="foot-note">資料儲存於本機瀏覽器 · Case W2248 · designed & built with care</p>
+  </div>
+</section>
+
+<script>
+const LANG_KEY = 'daily_ledger_lang_v1';
+
+const T = {
+  zh: {
+    navTracker: '記錄',
+    aboutEyebrow: 'About · 關於',
+    aboutTitleA: '關於', aboutTitleB: 'Daily Ledger',
+    aboutDesc: '一款溫柔陪伴你記帳的工具。每一筆收支,都是一顆種子;日復一日,它們會長成屬於你的財務花園。簡單、私密、離線可用。',
+    feat1Label: '一秒記錄', feat1Desc: '快速新增收入或支出,12 種預設分類',
+    feat2Label: '自動結算', feat2Desc: '每月收支與結餘,一眼看清',
+    feat3Label: '視覺化分析', feat3Desc: '分類圓餅圖,看見金錢的流向',
+    feat4Label: '匯出 CSV', feat4Desc: '一鍵下載,備份或轉入 Excel',
+    footTag: 'a tiny garden for your money',
+    footNote: '資料儲存於本機瀏覽器 · Case W2248 · designed & built with care'
+  },
+  en: {
+    navTracker: 'Tracker',
+    aboutEyebrow: 'About',
+    aboutTitleA: 'About', aboutTitleB: 'Daily Ledger',
+    aboutDesc: 'A gentle companion for daily bookkeeping. Every entry is a seed; day by day, they grow into a financial garden of your own. Simple, private, works offline.',
+    feat1Label: 'One-tap entry', feat1Desc: 'Log income or expense fast, 12 preset categories',
+    feat2Label: 'Auto balance', feat2Desc: 'Monthly totals & balance, all at a glance',
+    feat3Label: 'Visual analytics', feat3Desc: 'Category breakdown shows where your money flows',
+    feat4Label: 'CSV export', feat4Desc: 'One click to download, back up or open in Excel',
+    footTag: 'a tiny garden for your money',
+    footNote: 'Data stored in your browser · Case W2248 · designed & built with care'
+  }
+};
+
+let lang = localStorage.getItem(LANG_KEY) || 'zh';
+
+function apply() {
+  const t = T[lang];
+  document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+  document.getElementById('nav-tracker').textContent = t.navTracker;
+  document.getElementById('about-eyebrow').textContent = t.aboutEyebrow;
+  document.getElementById('about-title').innerHTML = t.aboutTitleA + ' <em>' + t.aboutTitleB + '</em>';
+  document.getElementById('about-desc').textContent = t.aboutDesc;
+  document.getElementById('feat1-label').textContent = t.feat1Label;
+  document.getElementById('feat1-desc').textContent  = t.feat1Desc;
+  document.getElementById('feat2-label').textContent = t.feat2Label;
+  document.getElementById('feat2-desc').textContent  = t.feat2Desc;
+  document.getElementById('feat3-label').textContent = t.feat3Label;
+  document.getElementById('feat3-desc').textContent  = t.feat3Desc;
+  document.getElementById('feat4-label').textContent = t.feat4Label;
+  document.getElementById('feat4-desc').textContent  = t.feat4Desc;
+  document.getElementById('foot-tag').textContent = t.footTag;
+  document.getElementById('foot-note').textContent = t.footNote;
+  document.getElementById('lang-zh').classList.toggle('on', lang === 'zh');
+  document.getElementById('lang-en').classList.toggle('on', lang === 'en');
+}
+
+document.getElementById('lang-zh').onclick = () => { lang = 'zh'; localStorage.setItem(LANG_KEY, 'zh'); apply(); };
+document.getElementById('lang-en').onclick = () => { lang = 'en'; localStorage.setItem(LANG_KEY, 'en'); apply(); };
+
+apply();
+</script>
+</body>
+</html>
