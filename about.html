@@ -15,14 +15,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 <style>
-  .wrap { max-width: 1100px; margin: 0 auto; padding: 48px 28px 80px; }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 48px 28px 80px; }
 
   .nav {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 72px;
   }
 
-  .about-head { max-width: 680px; margin-bottom: 48px; }
+  .about-head { margin-bottom: 48px; }
   .about-eyebrow { display: inline-block; margin-bottom: 14px; }
   .about-title {
     font-weight: 600; font-size: clamp(32px, 4.5vw, 44px);
@@ -37,11 +37,49 @@
     line-height: 1.7; font-weight: 400;
   }
 
+  /* ============ WHY (philosophy) ============ */
+  .why {
+    margin: 0 0 56px;
+    padding: 4px 0 0;
+    border-top: 0.5px solid var(--line-soft);
+  }
+  .why-eyebrow {
+    display: inline-block;
+    margin: 28px 0 14px;
+  }
+  .why-title {
+    font-weight: 600; font-size: clamp(22px, 3vw, 26px);
+    line-height: 1.25; color: var(--sage-ink);
+    margin-bottom: 18px; letter-spacing: -0.015em;
+  }
+  .why-title em {
+    font-style: italic; font-weight: 400; color: var(--clay-ink);
+  }
+  .why p {
+    font-size: 15px; color: var(--ink-soft);
+    line-height: 1.8; font-weight: 400;
+    margin-bottom: 14px;
+  }
+  .why p:last-child { margin-bottom: 0; }
+
+  /* ============ SECTION HEADING (shared) ============ */
+  .sec-head { margin-bottom: 20px; }
+  .sec-eyebrow { display: inline-block; margin-bottom: 10px; }
+  .sec-title {
+    font-weight: 600; font-size: clamp(20px, 2.8vw, 24px);
+    color: var(--sage-ink); letter-spacing: -0.015em;
+  }
+  .sec-title em {
+    font-style: italic; font-weight: 400; color: var(--clay-ink);
+  }
+
+  /* ============ FEATURE RIBBON (existing) ============ */
   .feat-ribbon {
     display: grid; grid-template-columns: repeat(4, 1fr);
     gap: 1px; background: var(--line);
     border: 0.5px solid var(--line); border-radius: 16px;
     overflow: hidden;
+    margin-bottom: 72px;
   }
   @media (max-width: 720px) { .feat-ribbon { grid-template-columns: repeat(2, 1fr); } }
   .feat {
@@ -56,6 +94,99 @@
   .feat-desc {
     font-size: 13px; color: var(--ink-soft);
     line-height: 1.6; font-weight: 400;
+  }
+
+  /* ============ HOW IT WORKS (3 steps) ============ */
+  .how { margin-bottom: 72px; }
+  .steps {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 720px) { .steps { grid-template-columns: 1fr; } }
+  .step {
+    background: var(--cream-soft);
+    border: 0.5px solid var(--line);
+    border-radius: 16px;
+    padding: 28px 26px;
+    position: relative;
+    overflow: hidden;
+  }
+  .step-num {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 300;
+    font-size: 44px;
+    line-height: 1;
+    color: var(--clay);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+  .step-label {
+    font-weight: 600; font-size: 15px;
+    color: var(--sage-ink); letter-spacing: -0.005em;
+    margin-bottom: 6px;
+  }
+  .step-desc {
+    font-size: 13px; color: var(--ink-soft);
+    line-height: 1.65; font-weight: 400;
+  }
+  .step::after {
+    content: ''; position: absolute;
+    top: 0; right: 0; bottom: 0; width: 2px;
+    background: var(--sage); opacity: 0.4;
+  }
+
+  /* ============ PRIVACY ============ */
+  .privacy { margin-bottom: 56px; }
+  .privacy-card {
+    background: var(--card);
+    border: 0.5px solid var(--line);
+    border-radius: 16px;
+    padding: 32px 34px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  @media (max-width: 600px) {
+    .privacy-card {
+      grid-template-columns: 1fr;
+      gap: 20px;
+      padding: 28px 26px;
+    }
+  }
+  .privacy-icon {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--cream-deep);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--sage-deep);
+    flex-shrink: 0;
+  }
+  .privacy-intro {
+    font-size: 14px; color: var(--ink-soft);
+    line-height: 1.7; font-weight: 400;
+    margin-bottom: 18px;
+    max-width: 520px;
+  }
+  .privacy-list {
+    display: flex; flex-direction: column; gap: 12px;
+    list-style: none;
+  }
+  .privacy-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13.5px; color: var(--ink);
+    line-height: 1.6;
+  }
+  .privacy-list li svg {
+    flex-shrink: 0;
+    color: var(--sage-deep);
+    margin-top: 3px;
+  }
+  .privacy-list li b {
+    font-weight: 600;
+    color: var(--sage-ink);
   }
 
   .page-foot { margin-top: 72px; }
@@ -90,6 +221,19 @@
     <p class="about-desc" id="about-desc">一款溫柔陪伴你記帳的工具。每一筆收支,都是一顆種子;日復一日,它們會長成屬於你的財務花園。簡單、私密、離線可用。</p>
   </div>
 
+  <!-- ============ WHY ============ -->
+  <div class="why">
+    <span class="eyebrow why-eyebrow" id="why-eyebrow">Why · 為什麼</span>
+    <h2 class="why-title" id="why-title">記帳,不只是 <em>記帳</em></h2>
+    <p id="why-p1">市面上的記帳軟體很多,有的追求功能齊全,有的綁定銀行帳戶,有的要你註冊帳號、同步雲端、看廣告。Daily Ledger 想做的剛好相反——把記帳這件事還原到最小、最安靜的樣子。</p>
+    <p id="why-p2">我們相信,記錄金錢的流向是一種溫柔的自我對話。你不需要複雜的報表,也不需要交出隱私。只要每天一筆,讓花園慢慢長出來——你會在不知不覺中,看見自己的模樣。</p>
+  </div>
+
+  <!-- ============ FEATURES (existing ribbon) ============ -->
+  <div class="sec-head">
+    <span class="eyebrow sec-eyebrow" id="feat-eyebrow">Features · 功能</span>
+    <h2 class="sec-title" id="feat-title">它能 <em>為你做什麼</em></h2>
+  </div>
   <div class="feat-ribbon">
     <div class="feat">
       <svg class="feat-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10h14M10 3v14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
@@ -113,6 +257,65 @@
     </div>
   </div>
 
+  <!-- ============ HOW IT WORKS ============ -->
+  <div class="how">
+    <div class="sec-head">
+      <span class="eyebrow sec-eyebrow" id="how-eyebrow">How it works · 怎麼使用</span>
+      <h2 class="sec-title" id="how-title">三個步驟,<em>就這麼簡單</em></h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-label" id="step1-label">記下一筆</div>
+        <div class="step-desc" id="step1-desc">在記錄頁輸入金額、選分類、加備註。不到十秒,一筆帳就種好了。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-label" id="step2-label">看花園成形</div>
+        <div class="step-desc" id="step2-desc">每一筆支出會化成一棵植物,長在你這個月的花園裡。越用越豐富。</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-label" id="step3-label">分析去向</div>
+        <div class="step-desc" id="step3-desc">切換到分析頁,圓餅圖告訴你每一類的比重,找到可以調整的地方。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PRIVACY ============ -->
+  <div class="privacy">
+    <div class="sec-head">
+      <span class="eyebrow sec-eyebrow" id="priv-eyebrow">Privacy · 隱私</span>
+      <h2 class="sec-title" id="priv-title">你的資料,<em>只屬於你</em></h2>
+    </div>
+    <div class="privacy-card">
+      <div class="privacy-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+          <path d="M5 11V8a7 7 0 1114 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <rect x="4" y="11" width="16" height="10" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="12" cy="16" r="1.3" fill="currentColor"/>
+        </svg>
+      </div>
+      <div>
+        <p class="privacy-intro" id="priv-intro">我們不收集、不上傳、不追蹤你的任何資料。所有記錄只存在你正在使用的這個瀏覽器裡,由你完全掌控。</p>
+        <ul class="privacy-list">
+          <li>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="priv-1"><b>不需要帳號</b>。打開網頁就能用,沒有註冊、沒有登入。</span>
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="priv-2"><b>不經過伺服器</b>。資料存在本機瀏覽器的 localStorage,離線也能記錄。</span>
+          </li>
+          <li>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l3.5 3.5L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span id="priv-3"><b>隨時可以帶走</b>。一鍵匯出 CSV,想備份到 Excel、Google Sheets 都行。</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <div class="page-foot">
     <p>Daily Ledger · <span class="soft-italic" id="foot-tag">a tiny garden for your money</span></p>
     <p style="margin-top: 6px;" id="foot-note">資料儲存於本機瀏覽器 · Case W2248 · designed & built with care</p>
@@ -128,10 +331,35 @@ const T = {
     aboutEyebrow: 'About · 關於',
     aboutTitleA: '關於', aboutTitleB: 'Daily Ledger',
     aboutDesc: '一款溫柔陪伴你記帳的工具。每一筆收支,都是一顆種子;日復一日,它們會長成屬於你的財務花園。簡單、私密、離線可用。',
+
+    whyEyebrow: 'Why · 為什麼',
+    whyTitleA: '記帳,不只是', whyTitleB: '記帳',
+    whyP1: '市面上的記帳軟體很多,有的追求功能齊全,有的綁定銀行帳戶,有的要你註冊帳號、同步雲端、看廣告。Daily Ledger 想做的剛好相反——把記帳這件事還原到最小、最安靜的樣子。',
+    whyP2: '我們相信,記錄金錢的流向是一種溫柔的自我對話。你不需要複雜的報表,也不需要交出隱私。只要每天一筆,讓花園慢慢長出來——你會在不知不覺中,看見自己的模樣。',
+
+    featEyebrow: 'Features · 功能',
+    featTitleA: '它能', featTitleB: '為你做什麼',
     feat1Label: '一秒記錄', feat1Desc: '快速新增收入或支出,12 種預設分類',
     feat2Label: '自動結算', feat2Desc: '每月收支與結餘,一眼看清',
     feat3Label: '視覺化分析', feat3Desc: '分類圓餅圖,看見金錢的流向',
     feat4Label: '匯出 CSV', feat4Desc: '一鍵下載,備份或轉入 Excel',
+
+    howEyebrow: 'How it works · 怎麼使用',
+    howTitleA: '三個步驟,', howTitleB: '就這麼簡單',
+    step1Label: '記下一筆',
+    step1Desc: '在記錄頁輸入金額、選分類、加備註。不到十秒,一筆帳就種好了。',
+    step2Label: '看花園成形',
+    step2Desc: '每一筆支出會化成一棵植物,長在你這個月的花園裡。越用越豐富。',
+    step3Label: '分析去向',
+    step3Desc: '切換到分析頁,圓餅圖告訴你每一類的比重,找到可以調整的地方。',
+
+    privEyebrow: 'Privacy · 隱私',
+    privTitleA: '你的資料,', privTitleB: '只屬於你',
+    privIntro: '我們不收集、不上傳、不追蹤你的任何資料。所有記錄只存在你正在使用的這個瀏覽器裡,由你完全掌控。',
+    priv1A: '不需要帳號', priv1B: '。打開網頁就能用,沒有註冊、沒有登入。',
+    priv2A: '不經過伺服器', priv2B: '。資料存在本機瀏覽器的 localStorage,離線也能記錄。',
+    priv3A: '隨時可以帶走', priv3B: '。一鍵匯出 CSV,想備份到 Excel、Google Sheets 都行。',
+
     footTag: 'a tiny garden for your money',
     footNote: '資料儲存於本機瀏覽器 · Case W2248 · designed & built with care'
   },
@@ -140,10 +368,35 @@ const T = {
     aboutEyebrow: 'About',
     aboutTitleA: 'About', aboutTitleB: 'Daily Ledger',
     aboutDesc: 'A gentle companion for daily bookkeeping. Every entry is a seed; day by day, they grow into a financial garden of your own. Simple, private, works offline.',
+
+    whyEyebrow: 'Why',
+    whyTitleA: 'Bookkeeping, but', whyTitleB: 'quieter',
+    whyP1: 'Most finance apps chase feature-completeness, bank integrations, or ad-supported cloud sync. Daily Ledger goes the other way — shrinking bookkeeping back to its smallest, quietest form.',
+    whyP2: 'Tracking where your money goes can be a gentle conversation with yourself. You don\'t need complex reports, and you shouldn\'t have to trade your privacy for one. Add one entry a day, let the garden grow — and slowly, you\'ll start to see yourself in it.',
+
+    featEyebrow: 'Features',
+    featTitleA: 'What', featTitleB: 'it does for you',
     feat1Label: 'One-tap entry', feat1Desc: 'Log income or expense fast, 12 preset categories',
     feat2Label: 'Auto balance', feat2Desc: 'Monthly totals & balance, all at a glance',
     feat3Label: 'Visual analytics', feat3Desc: 'Category breakdown shows where your money flows',
     feat4Label: 'CSV export', feat4Desc: 'One click to download, back up or open in Excel',
+
+    howEyebrow: 'How it works',
+    howTitleA: 'Three steps,', howTitleB: 'that\'s it',
+    step1Label: 'Log an entry',
+    step1Desc: 'On the tracker page, type an amount, pick a category, add a note. Less than ten seconds — and it\'s planted.',
+    step2Label: 'Watch the garden',
+    step2Desc: 'Every expense becomes a plant in your garden for the month. The more you log, the lusher it gets.',
+    step3Label: 'See where it goes',
+    step3Desc: 'Switch to the analyze page. A doughnut chart shows the weight of each category — and where you might adjust.',
+
+    privEyebrow: 'Privacy',
+    privTitleA: 'Your data,', privTitleB: 'yours alone',
+    privIntro: 'We don\'t collect, upload, or track anything. Every entry lives only in the browser you\'re using right now, fully under your control.',
+    priv1A: 'No account needed', priv1B: '. Open the page and start. No sign-up, no login.',
+    priv2A: 'No server involved', priv2B: '. Data lives in your browser\'s localStorage — it works offline, too.',
+    priv3A: 'Take it with you anytime', priv3B: '. Export to CSV with one click, back it up to Excel or Google Sheets.',
+
     footTag: 'a tiny garden for your money',
     footNote: 'Data stored in your browser · Case W2248 · designed & built with care'
   }
@@ -154,11 +407,21 @@ let lang = localStorage.getItem(LANG_KEY) || 'zh';
 function apply() {
   const t = T[lang];
   document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+
   document.getElementById('nav-tracker').textContent = t.navTracker;
   document.getElementById('nav-analyze').textContent = t.navAnalyze;
+
   document.getElementById('about-eyebrow').textContent = t.aboutEyebrow;
   document.getElementById('about-title').innerHTML = t.aboutTitleA + ' <em>' + t.aboutTitleB + '</em>';
   document.getElementById('about-desc').textContent = t.aboutDesc;
+
+  document.getElementById('why-eyebrow').textContent = t.whyEyebrow;
+  document.getElementById('why-title').innerHTML = t.whyTitleA + ' <em>' + t.whyTitleB + '</em>';
+  document.getElementById('why-p1').textContent = t.whyP1;
+  document.getElementById('why-p2').textContent = t.whyP2;
+
+  document.getElementById('feat-eyebrow').textContent = t.featEyebrow;
+  document.getElementById('feat-title').innerHTML = t.featTitleA + ' <em>' + t.featTitleB + '</em>';
   document.getElementById('feat1-label').textContent = t.feat1Label;
   document.getElementById('feat1-desc').textContent  = t.feat1Desc;
   document.getElementById('feat2-label').textContent = t.feat2Label;
@@ -167,8 +430,26 @@ function apply() {
   document.getElementById('feat3-desc').textContent  = t.feat3Desc;
   document.getElementById('feat4-label').textContent = t.feat4Label;
   document.getElementById('feat4-desc').textContent  = t.feat4Desc;
+
+  document.getElementById('how-eyebrow').textContent = t.howEyebrow;
+  document.getElementById('how-title').innerHTML = t.howTitleA + ' <em>' + t.howTitleB + '</em>';
+  document.getElementById('step1-label').textContent = t.step1Label;
+  document.getElementById('step1-desc').textContent  = t.step1Desc;
+  document.getElementById('step2-label').textContent = t.step2Label;
+  document.getElementById('step2-desc').textContent  = t.step2Desc;
+  document.getElementById('step3-label').textContent = t.step3Label;
+  document.getElementById('step3-desc').textContent  = t.step3Desc;
+
+  document.getElementById('priv-eyebrow').textContent = t.privEyebrow;
+  document.getElementById('priv-title').innerHTML = t.privTitleA + ' <em>' + t.privTitleB + '</em>';
+  document.getElementById('priv-intro').textContent = t.privIntro;
+  document.getElementById('priv-1').innerHTML = '<b>' + t.priv1A + '</b>' + t.priv1B;
+  document.getElementById('priv-2').innerHTML = '<b>' + t.priv2A + '</b>' + t.priv2B;
+  document.getElementById('priv-3').innerHTML = '<b>' + t.priv3A + '</b>' + t.priv3B;
+
   document.getElementById('foot-tag').textContent = t.footTag;
   document.getElementById('foot-note').textContent = t.footNote;
+
   document.getElementById('lang-zh').classList.toggle('on', lang === 'zh');
   document.getElementById('lang-en').classList.toggle('on', lang === 'en');
 }
