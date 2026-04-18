@@ -89,4 +89,4 @@ real expense.
 
 ---
 
-Case W2248 — designed & built with care.
+Designed & built with care.
