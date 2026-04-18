@@ -594,10 +594,13 @@ function renderChart() {
     const plant = catPlantFor(label);
     const pct = total ? Math.round(data[i] / total * 100) : 0;
     const targetH = 24;
-    const scale = targetH / plant.h;
-    const w = Math.ceil(40 * scale);
+    const padY = 4, padX = 4;
+    const vbH = plant.h + padY;
+    const vbW = 40 + padX * 2;
+    const scale = targetH / vbH;
+    const w = Math.ceil(vbW * scale);
     return '<div class="plant-legend-item">' +
-      '<svg width="' + w + '" height="' + targetH + '" viewBox="-20 -' + plant.h + ' 40 ' + plant.h + '">' +
+      '<svg width="' + w + '" height="' + targetH + '" viewBox="' + (-20 - padX) + ' ' + (-vbH) + ' ' + vbW + ' ' + vbH + '">' +
         plant.svg +
       '</svg>' +
       '<span class="plant-legend-cat">' + label + '</span>' +
