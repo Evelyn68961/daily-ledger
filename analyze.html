@@ -73,6 +73,92 @@
     font-size: 14px; font-style: italic;
   }
 
+  /* chart-center is now rendered via Chart.js plugin, no CSS needed */
+
+  /* Summary row below chart */
+  .chart-summary {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--line-soft);
+    border-top: 0.5px solid var(--line-soft);
+    margin-top: 16px; border-radius: 0 0 12px 12px;
+    overflow: hidden;
+  }
+  .chart-summary-item {
+    background: var(--card);
+    padding: 14px 16px; text-align: center;
+  }
+  .chart-summary-val {
+    font-weight: 600; font-size: 15px; color: var(--sage-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .chart-summary-lbl {
+    font-size: 11px; color: var(--ink-hint); margin-top: 2px;
+    letter-spacing: 0.06em;
+  }
+
+  /* Compare badge */
+  .chart-compare {
+    display: inline-flex; align-items: center; gap: 5px;
+    margin-top: 14px;
+    font-size: 12px; font-weight: 500;
+    padding: 5px 12px; border-radius: 999px;
+    background: var(--cream-deep);
+    color: var(--ink-soft);
+  }
+  .chart-compare.up { color: var(--exp); }
+  .chart-compare.down { color: var(--inc); }
+  @media (max-width: 600px) { .chart-summary { grid-template-columns: 1fr; } }
+
+  /* ============ Category ranking ============ */
+  .rank-list { display: flex; flex-direction: column; gap: 10px; }
+  .rank-row {
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 14px;
+  }
+  .rank-info { display: flex; flex-direction: column; gap: 4px; }
+  .rank-top {
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  .rank-cat { font-weight: 600; font-size: 14px; color: var(--sage-ink); }
+  .rank-pct { font-size: 12px; color: var(--ink-hint); font-weight: 400; }
+  .rank-bar-bg {
+    height: 6px; border-radius: 3px; background: var(--cream-deep);
+    overflow: hidden;
+  }
+  .rank-bar {
+    height: 100%; border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .rank-amt {
+    font-weight: 600; font-size: 14px; color: var(--ink);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+
+  /* ============ Daily trend ============ */
+  .trend-chart-wrap { position: relative; height: 220px; }
+
+  /* ============ Top expenses ============ */
+  .top-list { display: flex; flex-direction: column; gap: 0; }
+  .top-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 0.5px solid var(--line-soft);
+  }
+  .top-row:last-child { border-bottom: none; }
+  .top-left { display: flex; flex-direction: column; gap: 2px; }
+  .top-note { font-size: 14px; font-weight: 500; color: var(--sage-ink); }
+  .top-meta { font-size: 12px; color: var(--ink-hint); }
+  .top-amt {
+    font-weight: 600; font-size: 15px; color: var(--exp);
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px; margin-bottom: 20px;
+  }
+  @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+
   .page-foot { margin-top: 48px; }
 </style>
 </head>
@@ -133,6 +219,52 @@
     <div class="chart-wrap">
       <canvas id="chart"></canvas>
     </div>
+    <div class="chart-summary" id="chart-summary" style="display:none">
+      <div class="chart-summary-item">
+        <div class="chart-summary-val" id="sum-txn">0</div>
+        <div class="chart-summary-lbl" id="sum-txn-lbl">筆交易</div>
+      </div>
+      <div class="chart-summary-item">
+        <div class="chart-summary-val" id="sum-avg">NT$ 0</div>
+        <div class="chart-summary-lbl" id="sum-avg-lbl">日均支出</div>
+      </div>
+      <div class="chart-summary-item">
+        <div class="chart-summary-val" id="sum-top-cat">—</div>
+        <div class="chart-summary-lbl" id="sum-top-lbl">最大分類</div>
+      </div>
+    </div>
+    <div id="chart-compare-wrap" style="display:none">
+      <div class="chart-compare" id="chart-compare"></div>
+    </div>
+  </div>
+
+  <!-- Category ranking + Top expenses side by side -->
+  <div class="two-col">
+    <div class="panel">
+      <div class="panel-head">
+        <h3 class="panel-title" id="l-rank">分類排行</h3>
+        <span class="panel-count" id="rank-sub">by amount</span>
+      </div>
+      <div class="rank-list" id="rank-list"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <h3 class="panel-title" id="l-top">最大筆支出</h3>
+        <span class="panel-count" id="top-sub">top 5</span>
+      </div>
+      <div class="top-list" id="top-list"></div>
+    </div>
+  </div>
+
+  <!-- Daily trend -->
+  <div class="panel" style="margin-bottom: 20px;">
+    <div class="panel-head">
+      <h3 class="panel-title" id="l-trend">每日支出趨勢</h3>
+      <span class="panel-count" id="trend-sub">daily spending</span>
+    </div>
+    <div class="trend-chart-wrap">
+      <canvas id="trend-chart"></canvas>
+    </div>
   </div>
 
   <div class="page-foot">
@@ -157,7 +289,16 @@ const T = {
     pageTitleA: '支出的', pageTitleB: '去向',
     inc: 'Income · 收入', exp: 'Expense · 支出', bal: 'Balance · 結餘',
     chart: '分類圓餅圖', chartSub: '按分類比例',
+    centerLabel: '總支出',
+    sumTxn: '筆交易', sumAvg: '日均支出', sumTopCat: '最大分類',
+    compareUp: '較上期多', compareDown: '較上期少', compareSame: '與上期持平',
+    rank: '分類排行', rankSub: '依金額',
+    top: '最大筆支出', topSub: '前 5 筆',
+    trend: '每日支出趨勢', trendSub: '日均花費',
     emptyChart: '這段時間還沒有支出紀錄',
+    emptyRank: '尚無分類資料',
+    emptyTop: '尚無支出紀錄',
+    emptyTrend: '尚無每日資料',
     clearFilter: '清除',
     footTag: 'a tiny garden for your money',
     footNote: '資料儲存於本機瀏覽器 · Case W2248',
@@ -169,7 +310,16 @@ const T = {
     pageTitleA: 'Where your money', pageTitleB: 'goes',
     inc: 'Income', exp: 'Expense', bal: 'Balance',
     chart: 'Category breakdown', chartSub: 'by category',
+    centerLabel: 'total spent',
+    sumTxn: 'transactions', sumAvg: 'daily avg.', sumTopCat: 'top category',
+    compareUp: 'more than last period', compareDown: 'less than last period', compareSame: 'same as last period',
+    rank: 'Category ranking', rankSub: 'by amount',
+    top: 'Biggest expenses', topSub: 'top 5',
+    trend: 'Daily spending trend', trendSub: 'daily spending',
     emptyChart: 'No expenses in this range yet',
+    emptyRank: 'No category data',
+    emptyTop: 'No expenses yet',
+    emptyTrend: 'No daily data',
     clearFilter: 'clear',
     footTag: 'a tiny garden for your money',
     footNote: 'Data stored in your browser · Case W2248',
@@ -207,6 +357,12 @@ function applyLang() {
   document.getElementById('l-chart').textContent = t.chart;
   document.getElementById('chart-sub').textContent = t.chartSub;
   document.getElementById('fclear').textContent = t.clearFilter;
+  document.getElementById('l-rank').textContent = t.rank;
+  document.getElementById('rank-sub').textContent = t.rankSub;
+  document.getElementById('l-top').textContent = t.top;
+  document.getElementById('top-sub').textContent = t.topSub;
+  document.getElementById('l-trend').textContent = t.trend;
+  document.getElementById('trend-sub').textContent = t.trendSub;
   document.getElementById('foot-tag').textContent = t.footTag;
   document.getElementById('foot-note').textContent = t.footNote;
   document.getElementById('lang-zh').classList.toggle('on', lang === 'zh');
@@ -225,6 +381,20 @@ function renderStats() {
   balEl.style.color = bal >= 0 ? 'var(--sage-ink)' : 'var(--exp)';
 }
 
+const palette = ['#7A8C6C', '#D4A574', '#B5634A', '#A8B89A', '#C9A961', '#8B5C3F', '#5D6E4D', '#E4B984'];
+
+function getPrevPeriodExpenses() {
+  // Mirror the current filter range into the previous period
+  if (!filterStart || !filterEnd) return [];
+  const s = new Date(filterStart), e = new Date(filterEnd);
+  const span = e - s; // ms
+  const prevEnd = new Date(s.getTime() - 86400000); // day before start
+  const prevStart = new Date(prevEnd.getTime() - span);
+  const ps = prevStart.toISOString().slice(0, 10);
+  const pe = prevEnd.toISOString().slice(0, 10);
+  return entries.filter(r => r.type === 'expense' && r.date >= ps && r.date <= pe);
+}
+
 function renderChart() {
   const t = L();
   const ctx = document.getElementById('chart');
@@ -233,11 +403,16 @@ function renderChart() {
   filtered.forEach(e => { bucket[e.category] = (bucket[e.category] || 0) + e.amount; });
   const labels = Object.keys(bucket);
   const data = Object.values(bucket);
-  const palette = ['#7A8C6C', '#D4A574', '#B5634A', '#A8B89A', '#C9A961', '#8B5C3F', '#5D6E4D', '#E4B984'];
+  const totalExp = data.reduce((a, b) => a + b, 0);
+
+  const summaryEl = document.getElementById('chart-summary');
+  const compareWrap = document.getElementById('chart-compare-wrap');
 
   if (chart) { chart.destroy(); chart = null; }
 
   if (labels.length === 0) {
+    summaryEl.style.display = 'none';
+    compareWrap.style.display = 'none';
     const c = ctx.getContext('2d');
     c.clearRect(0, 0, ctx.width, ctx.height);
     c.fillStyle = '#9AA68E';
@@ -246,6 +421,71 @@ function renderChart() {
     c.fillText(t.emptyChart, ctx.width / 2, ctx.height / 2);
     return;
   }
+
+  // 2) Summary row
+  summaryEl.style.display = '';
+  const txnCount = filtered.length;
+  // Days in range
+  let days = 1;
+  if (filterStart && filterEnd) {
+    days = Math.max(1, Math.round((new Date(filterEnd) - new Date(filterStart)) / 86400000) + 1);
+  }
+  const dailyAvg = totalExp / days;
+  // Biggest category
+  const sorted = Object.entries(bucket).sort((a, b) => b[1] - a[1]);
+  const topCat = sorted[0][0];
+
+  document.getElementById('sum-txn').textContent = txnCount;
+  document.getElementById('sum-txn-lbl').textContent = t.sumTxn;
+  document.getElementById('sum-avg').textContent = fmt(dailyAvg);
+  document.getElementById('sum-avg-lbl').textContent = t.sumAvg;
+  document.getElementById('sum-top-cat').textContent = topCat;
+  document.getElementById('sum-top-lbl').textContent = t.sumTopCat;
+
+  // 3) Compare to previous period
+  const prevExpenses = getPrevPeriodExpenses();
+  const prevTotal = prevExpenses.reduce((s, e) => s + e.amount, 0);
+  if (prevTotal > 0) {
+    compareWrap.style.display = '';
+    const diff = totalExp - prevTotal;
+    const pct = Math.round(Math.abs(diff) / prevTotal * 100);
+    const compareEl = document.getElementById('chart-compare');
+    if (diff > 0) {
+      compareEl.className = 'chart-compare up';
+      compareEl.textContent = '↑ ' + pct + '% ' + t.compareUp;
+    } else if (diff < 0) {
+      compareEl.className = 'chart-compare down';
+      compareEl.textContent = '↓ ' + pct + '% ' + t.compareDown;
+    } else {
+      compareEl.className = 'chart-compare';
+      compareEl.textContent = '— ' + t.compareSame;
+    }
+  } else {
+    compareWrap.style.display = 'none';
+  }
+
+  const centerTextPlugin = {
+    id: 'centerText',
+    afterDraw: function(ch) {
+      const { ctx: c, chartArea } = ch;
+      const meta = ch.getDatasetMeta(0);
+      if (!meta || !meta.data || !meta.data.length) return;
+      // Use the arc element to find the true center
+      const arc = meta.data[0];
+      const cx = arc.x;
+      const cy = arc.y;
+      c.save();
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.font = "700 22px Manrope, 'Noto Sans TC', sans-serif";
+      c.fillStyle = '#2D3E2A';
+      c.fillText(fmt(totalExp), cx, cy - 10);
+      c.font = "500 11px Manrope, 'Noto Sans TC', sans-serif";
+      c.fillStyle = '#9AA68E';
+      c.fillText(t.centerLabel, cx, cy + 14);
+      c.restore();
+    }
+  };
 
   chart = new Chart(ctx, {
     type: 'doughnut',
@@ -258,6 +498,7 @@ function renderChart() {
         borderColor: '#FBF5E7'
       }]
     },
+    plugins: [centerTextPlugin],
     options: {
       responsive: true, maintainAspectRatio: false, cutout: '62%',
       plugins: {
@@ -286,7 +527,132 @@ function renderChart() {
   });
 }
 
-function render() { renderStats(); renderChart(); }
+function renderRank() {
+  const t = L();
+  const el = document.getElementById('rank-list');
+  const filtered = getFiltered().filter(e => e.type === 'expense');
+  const bucket = {};
+  filtered.forEach(e => { bucket[e.category] = (bucket[e.category] || 0) + e.amount; });
+  const sorted = Object.entries(bucket).sort((a, b) => b[1] - a[1]);
+  const total = sorted.reduce((s, r) => s + r[1], 0);
+
+  if (sorted.length === 0) {
+    el.innerHTML = '<div style="color:var(--ink-hint);font-size:13px;font-style:italic;padding:12px 0">' + t.emptyRank + '</div>';
+    return;
+  }
+
+  el.innerHTML = sorted.map((r, i) => {
+    const pct = total ? Math.round(r[1] / total * 100) : 0;
+    const color = palette[i % palette.length];
+    return '<div class="rank-row">' +
+      '<div class="rank-info">' +
+        '<div class="rank-top"><span class="rank-cat">' + r[0] + '</span><span class="rank-pct">' + pct + '%</span></div>' +
+        '<div class="rank-bar-bg"><div class="rank-bar" style="width:' + pct + '%;background:' + color + '"></div></div>' +
+      '</div>' +
+      '<div class="rank-amt">' + fmt(r[1]) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderTop() {
+  const t = L();
+  const el = document.getElementById('top-list');
+  const filtered = getFiltered().filter(e => e.type === 'expense');
+  const sorted = filtered.sort((a, b) => b.amount - a.amount).slice(0, 5);
+
+  if (sorted.length === 0) {
+    el.innerHTML = '<div style="color:var(--ink-hint);font-size:13px;font-style:italic;padding:12px 0">' + t.emptyTop + '</div>';
+    return;
+  }
+
+  el.innerHTML = sorted.map(e => {
+    return '<div class="top-row">' +
+      '<div class="top-left">' +
+        '<div class="top-note">' + (e.note || e.category) + '</div>' +
+        '<div class="top-meta">' + e.date + ' · ' + e.category + '</div>' +
+      '</div>' +
+      '<div class="top-amt">' + fmt(e.amount) + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+let trendChart = null;
+
+function renderTrend() {
+  const t = L();
+  const ctx = document.getElementById('trend-chart');
+  const filtered = getFiltered().filter(e => e.type === 'expense');
+
+  if (trendChart) { trendChart.destroy(); trendChart = null; }
+
+  // Group by date
+  const daily = {};
+  filtered.forEach(e => { daily[e.date] = (daily[e.date] || 0) + e.amount; });
+  const dates = Object.keys(daily).sort();
+
+  if (dates.length === 0) {
+    const c = ctx.getContext('2d');
+    c.clearRect(0, 0, ctx.width, ctx.height);
+    c.fillStyle = '#9AA68E';
+    c.font = 'italic 14px Manrope, "Noto Sans TC", sans-serif';
+    c.textAlign = 'center';
+    c.fillText(t.emptyTrend, ctx.width / 2, ctx.height / 2);
+    return;
+  }
+
+  // Fill in missing days between start and end
+  const allDates = [];
+  const allAmounts = [];
+  const startD = new Date(dates[0]);
+  const endD = new Date(dates[dates.length - 1]);
+  for (let d = new Date(startD); d <= endD; d.setDate(d.getDate() + 1)) {
+    const key = d.toISOString().slice(0, 10);
+    allDates.push(key.slice(5)); // MM-DD
+    allAmounts.push(daily[key] || 0);
+  }
+
+  trendChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: allDates,
+      datasets: [{
+        data: allAmounts,
+        backgroundColor: '#A8B89A',
+        borderRadius: 4,
+        borderSkipped: false,
+        maxBarThickness: 24
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#2D3E2A',
+          titleFont: { family: "Manrope, 'Noto Sans TC', sans-serif", size: 12, weight: '600' },
+          bodyFont: { family: "Manrope, 'Noto Sans TC', sans-serif", size: 13 },
+          padding: 10, cornerRadius: 8,
+          callbacks: {
+            label: (c) => '  ' + fmt(c.raw)
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 11, family: "Manrope, 'Noto Sans TC', sans-serif" }, color: '#9AA68E', maxRotation: 0 }
+        },
+        y: {
+          grid: { color: '#E8DEC4' },
+          ticks: { font: { size: 11, family: "Manrope, 'Noto Sans TC', sans-serif" }, color: '#9AA68E', callback: (v) => L().currency + ' ' + v.toLocaleString() },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+function render() { renderStats(); renderChart(); renderRank(); renderTop(); renderTrend(); }
 
 document.getElementById('lang-zh').onclick = () => { lang = 'zh'; localStorage.setItem(LANG_KEY, 'zh'); applyLang(); render(); };
 document.getElementById('lang-en').onclick = () => { lang = 'en'; localStorage.setItem(LANG_KEY, 'en'); applyLang(); render(); };
