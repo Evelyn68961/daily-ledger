@@ -73,7 +73,50 @@
     font-size: 14px; font-style: italic;
   }
 
-  /* chart-center is now rendered via Chart.js plugin, no CSS needed */
+  /* Doughnut + plant legend layout */
+  .chart-area {
+    display: flex; align-items: center; gap: 20px;
+    margin-top: 10px;
+    overflow: visible;
+  }
+  .chart-canvas-wrap { position: relative; flex: 1; height: 340px; min-width: 0; }
+  .chart-legend-right {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 10px;
+    align-content: center;
+    width: 36%;
+  }
+  .plant-legend-item {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: var(--cream-soft);
+    border: 0.5px solid var(--line);
+    border-radius: 12px;
+    padding: 22px 12px 16px;
+    gap: 4px;
+  }
+  .plant-legend-cat {
+    font-size: 11px; font-weight: 600; color: var(--sage-ink);
+    line-height: 1.2;
+  }
+  .plant-legend-pct {
+    font-size: 10px; color: var(--ink-hint); font-weight: 400;
+  }
+  @media (max-width: 700px) {
+    .chart-area { flex-direction: column; }
+    .chart-canvas-wrap { width: 100%; height: 280px; }
+    .chart-legend-right {
+      grid-template-rows: auto;
+      grid-auto-flow: row;
+      grid-auto-columns: unset;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      width: 100%;
+    }
+  }
 
   /* Summary row below chart */
   .chart-summary {
@@ -205,7 +248,7 @@
     </div>
   </div>
 
-  <div class="panel">
+  <div class="panel" style="overflow:visible">
     <div class="panel-head">
       <h3 class="panel-title" id="l-chart">分類圓餅圖</h3>
       <span class="panel-count" id="chart-sub">by category</span>
@@ -216,8 +259,11 @@
       <input type="date" id="fend" class="field" />
       <button id="fclear" class="btn-mini" title="清除篩選">清除</button>
     </div>
-    <div class="chart-wrap">
-      <canvas id="chart"></canvas>
+    <div class="chart-area">
+      <div class="chart-canvas-wrap">
+        <canvas id="chart"></canvas>
+      </div>
+      <div class="chart-legend-right" id="chart-legend"></div>
     </div>
     <div class="chart-summary" id="chart-summary" style="display:none">
       <div class="chart-summary-item">
@@ -336,6 +382,26 @@ let chart = null;
 function L() { return T[lang]; }
 function fmt(n) { return L().currency + ' ' + Math.round(n).toLocaleString(); }
 
+const CATS_ZH = ['飲食','交通','購物','娛樂','居住','醫療','其他'];
+const CATS_EN = ['Food','Transport','Shopping','Leisure','Housing','Medical','Other'];
+const PLANTS = [
+  '<ellipse cx="-7" cy="-4" rx="7" ry="5" fill="#7A8C6C"/><ellipse cx="7" cy="-4" rx="7" ry="5" fill="#7A8C6C"/><ellipse cx="0" cy="-11" rx="9" ry="7" fill="#A8B89A"/><ellipse cx="-4" cy="-13" rx="4" ry="3" fill="#8B9A7C"/><ellipse cx="4" cy="-13" rx="4" ry="3" fill="#8B9A7C"/>',
+  '<path d="M-2 0 L-3 -18 L-4 -38 L-3 -58 L0 -70 L3 -58 L4 -38 L3 -18 L2 0 Z" fill="#5D6E4D"/><path d="M0 -70 L0 -5" stroke="#3D4F3B" stroke-width="0.6" opacity="0.5"/>',
+  '<path d="M0 0 L0 -28" stroke="#7A8C6C" stroke-width="1.2" stroke-linecap="round"/><ellipse cx="-7" cy="-13" rx="5" ry="2" fill="#7A8C6C" transform="rotate(-28 -7 -13)"/><ellipse cx="6" cy="-18" rx="4" ry="2" fill="#8B9A7C" transform="rotate(30 6 -18)"/><path d="M-6 -28 Q-7 -36 0 -37 Q7 -36 6 -28 Q3 -25 0 -29 Q-3 -25 -6 -28 Z" fill="#D4A574"/><path d="M-3 -30 Q0 -34 3 -30" stroke="#B88756" stroke-width="0.6" fill="none"/>',
+  '<path d="M0 0 L0 -32" stroke="#7A8C6C" stroke-width="1"/><ellipse cx="6" cy="-14" rx="4" ry="1.8" fill="#8B9A7C" transform="rotate(22 6 -14)"/><g transform="translate(0 -32)"><ellipse cx="0" cy="-6" rx="2.5" ry="4.5" fill="#FAF3E4"/><ellipse cx="0" cy="6" rx="2.5" ry="4.5" fill="#FAF3E4"/><ellipse cx="6" cy="0" rx="4.5" ry="2.5" fill="#FAF3E4"/><ellipse cx="-6" cy="0" rx="4.5" ry="2.5" fill="#FAF3E4"/><ellipse cx="4.5" cy="-4.5" rx="3.5" ry="2" fill="#FAF3E4" transform="rotate(-45 4.5 -4.5)"/><ellipse cx="-4.5" cy="-4.5" rx="3.5" ry="2" fill="#FAF3E4" transform="rotate(45 -4.5 -4.5)"/><ellipse cx="4.5" cy="4.5" rx="3.5" ry="2" fill="#FAF3E4" transform="rotate(45 4.5 4.5)"/><ellipse cx="-4.5" cy="4.5" rx="3.5" ry="2" fill="#FAF3E4" transform="rotate(-45 -4.5 4.5)"/><circle cx="0" cy="0" r="2.8" fill="#E4B984"/></g>',
+  '<rect x="-3" y="-32" width="6" height="32" fill="#8B5C3F"/><path d="M-3 -32 L3 -32 L3 -4 L-3 -4 Z" fill="#7A5C3F" opacity="0.3"/><circle cx="0" cy="-44" r="19" fill="#7A8C6C"/><circle cx="-13" cy="-40" r="13" fill="#A8B89A"/><circle cx="13" cy="-40" r="13" fill="#A8B89A"/><circle cx="-6" cy="-54" r="11" fill="#8B9A7C"/><circle cx="9" cy="-54" r="10" fill="#8B9A7C"/><circle cx="0" cy="-60" r="8" fill="#7A8C6C"/>',
+  '<rect x="-3" y="-11" width="6" height="11" rx="1" fill="#FAF3E4"/><ellipse cx="0" cy="-11" rx="11" ry="9" fill="#B5634A"/><ellipse cx="-1" cy="-13" rx="10" ry="7" fill="#D06850"/><circle cx="-5" cy="-15" r="1.4" fill="#FAF3E4"/><circle cx="3" cy="-12" r="1.1" fill="#FAF3E4"/><circle cx="5" cy="-16" r="0.9" fill="#FAF3E4"/>',
+  '<circle cx="0" cy="-9" r="9" fill="#7A8C6C"/><circle cx="-6" cy="-11" r="6" fill="#A8B89A"/><circle cx="6" cy="-11" r="6" fill="#A8B89A"/><circle cx="0" cy="-15" r="5" fill="#8B9A7C"/>'
+];
+const PLANT_HEIGHTS = [15, 70, 37, 40, 65, 20, 20];
+
+function catPlantFor(category) {
+  let i = CATS_ZH.indexOf(category);
+  if (i === -1) i = CATS_EN.indexOf(category);
+  if (i === -1) i = PLANTS.length - 1;
+  return { svg: PLANTS[i], h: PLANT_HEIGHTS[i] };
+}
+
 function getFiltered() {
   return entries.filter(e => {
     if (filterStart && e.date < filterStart) return false;
@@ -413,6 +479,7 @@ function renderChart() {
   if (labels.length === 0) {
     summaryEl.style.display = 'none';
     compareWrap.style.display = 'none';
+    document.getElementById('chart-legend').innerHTML = '';
     const c = ctx.getContext('2d');
     c.clearRect(0, 0, ctx.width, ctx.height);
     c.fillStyle = '#9AA68E';
@@ -502,13 +569,7 @@ function renderChart() {
     options: {
       responsive: true, maintainAspectRatio: false, cutout: '62%',
       plugins: {
-        legend: {
-          position: 'right',
-          labels: {
-            font: { size: 13, family: "Manrope, 'Noto Sans TC', sans-serif", weight: '500' },
-            boxWidth: 12, padding: 12, color: '#5D6E4D'
-          }
-        },
+        legend: { display: false },
         tooltip: {
           backgroundColor: '#2D3E2A',
           titleFont: { family: "Manrope, 'Noto Sans TC', sans-serif", size: 13, weight: '600' },
@@ -525,6 +586,24 @@ function renderChart() {
       }
     }
   });
+
+  // Render plant legend grid
+  const legendEl = document.getElementById('chart-legend');
+  const total = data.reduce((a, b) => a + b, 0);
+  legendEl.innerHTML = labels.map((label, i) => {
+    const plant = catPlantFor(label);
+    const pct = total ? Math.round(data[i] / total * 100) : 0;
+    const targetH = 24;
+    const scale = targetH / plant.h;
+    const w = Math.ceil(40 * scale);
+    return '<div class="plant-legend-item">' +
+      '<svg width="' + w + '" height="' + targetH + '" viewBox="-20 -' + plant.h + ' 40 ' + plant.h + '">' +
+        plant.svg +
+      '</svg>' +
+      '<span class="plant-legend-cat">' + label + '</span>' +
+      '<span class="plant-legend-pct">' + pct + '%</span>' +
+    '</div>';
+  }).join('');
 }
 
 function renderRank() {
