@@ -16,9 +16,11 @@ your browser and nowhere else.
 
 - **Tracker** — log income and expenses, browse recent entries, watch the
   monthly garden grow.
-- **Analyze** — a quiet view of where the money goes, with a category
-  breakdown and a date-range filter.
-- **About** — the story of the product and its four core ideas.
+- **Analyze** — category doughnut with center total, category ranking,
+  daily spending trend, top expenses, summary stats, and period-over-period
+  comparison — all filtered by date range.
+- **About** — the philosophy behind the product, a three-step guide,
+  feature highlights, and a privacy commitment.
 
 ## Design language
 
@@ -64,9 +66,9 @@ entry behind it.
 - **Load sample** button for an instant demo with realistic entries.
 - **Installable.** Add to home screen on iOS or Android for a full-screen
   app experience with its own icon.
-- **Offline-first.** A service worker caches the app shell on first visit,
-  so the ledger keeps working with no connection — on a plane, in the
-  subway, anywhere.
+- **Works offline.** A service worker caches the app shell and falls back
+  to it when there's no connection, while always fetching the latest
+  version when you're online.
 
 ## Under the hood
 
