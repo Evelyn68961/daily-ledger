@@ -760,6 +760,14 @@ document.getElementById('fend').value   = filterEnd;
 applyLang();
 render();
 
+function refreshFromStorage() {
+  entries = loadEntries();
+  render();
+}
+window.addEventListener('storage', (e) => { if (e.key === STORE_KEY) refreshFromStorage(); });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshFromStorage(); });
+window.addEventListener('pageshow', refreshFromStorage);
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
