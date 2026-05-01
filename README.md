@@ -3,40 +3,28 @@
 ### a tiny garden for your money · 為你的金錢種一座花園
 
 A gentle companion for daily bookkeeping. Every expense is a seed; day by
-day, they grow into a financial garden of your own. Simple, private,
-works offline.
+day, they grow into a financial garden of your own.
+
+**Live:** https://daily-ledger.vercel.app
 
 ---
 
 ## What it is
 
-A three-page personal finance tool, designed and built as a self-contained
-web experience. No account, no upload, no analytics — the ledger lives in
-your browser and nowhere else.
+A bilingual personal-finance tracker with three pages:
 
 - **Tracker** — log income and expenses, browse recent entries, watch the
   monthly garden grow.
 - **Analyze** — category doughnut with center total, category ranking,
-  daily spending trend, top expenses, summary stats, and period-over-period
-  comparison — all filtered by date range.
+  daily spending trend, top expenses, summary stats, and
+  period-over-period comparison — all filtered by date range.
 - **About** — the philosophy behind the product, a three-step guide,
-  feature highlights, and a privacy commitment.
-
-## Design language
-
-- A warm, earthy palette: cream, sage green, clay. Nothing shouts.
-- Typography pairs **Manrope** for Latin with **Noto Sans TC** for
-  traditional Chinese — matched in weight and rhythm so bilingual copy
-  reads as one voice.
-- Small-caps eyebrow labels, italic accents, and hand-drawn SVG
-  illustrations tuned to the palette.
-- A single shared stylesheet guarantees every page feels the same to the
-  pixel.
+  feature highlights, and a privacy note.
 
 ## The garden
 
-The headline piece. Each expense this month plants something on the
-ground line of the Tracker page:
+The headline piece. Each expense in the viewed month plants something on
+the ground line of the Tracker page:
 
 | Category | Chinese | Plant |
 | --- | --- | --- |
@@ -51,41 +39,92 @@ ground line of the Tracker page:
 Plant size scales with the amount — a quick lunch is a sprig, rent is a
 full-grown tree. Taller silhouettes render behind smaller ones, so the
 garden reads as a scene rather than a chart. Tap any plant to see the
-entry behind it.
+entry behind it. Use the ‹ › arrows above the garden to browse past
+months.
 
-## Features at a glance
+## Stack
 
-- **Bilingual** 中文 / English with a one-tap switch that remembers your
-  choice across pages.
-- **Twelve categories** (seven expense, five income), each with its own
-  glyph that appears both in the entry form and in the history list.
-- **Monthly summary** of income, expense, and balance at a glance.
-- **Date-range filter** for both recent entries and the analysis chart.
-- **CSV export** in one click — BOM-prefixed for clean Excel open, both
-  in Traditional Chinese and English headers.
-- **Load sample** button for an instant demo with realistic entries.
-- **Installable.** Add to home screen on iOS or Android for a full-screen
-  app experience with its own icon.
-- **Works offline.** A service worker caches the app shell and falls back
-  to it when there's no connection, while always fetching the latest
-  version when you're online.
+- **Frontend** — React 19 + Vite, CSS Modules, TanStack Query for data,
+  React Router for pages, Chart.js for analyze. Deployed on **Vercel**.
+- **Backend** — Express 5 + better-sqlite3 (ESM Node). Deployed on
+  **Railway** with a mounted volume so the SQLite file survives
+  redeploys.
+- **Routing in production** — Vercel rewrites `/api/*` to the Railway
+  backend so the browser always uses same-origin URLs (no CORS).
 
-## Under the hood
+```
+Browser
+  ↓ https://daily-ledger.vercel.app
+Vercel — serves React, rewrites /api/* to Railway
+  ↓
+Railway — Express server + /app/data/data.db (SQLite on volume)
+```
 
-Three static HTML pages (`index.html`, `analyze.html`, `about.html`)
-share a single `styles.css` for the design system. Data lives in the
-browser's `localStorage`, scoped per device. A lightweight service worker
-(`sw.js`) with a proper web manifest turns the site into an installable
-PWA — full-screen, branded icon, fully offline. The only external
-dependency is a CDN chart library used on the Analyze page. No build
-step, no server, no framework — it deploys anywhere that serves static
-files.
+## Project structure
 
-## Try it
+```
+daily-ledger/
+├── app/                 React+Vite frontend
+│   ├── src/
+│   │   ├── components/  one .jsx + .module.css per UI block
+│   │   ├── pages/       TrackerPage, AnalyzePage, AboutPage
+│   │   ├── plants/      one component per garden plant
+│   │   ├── hooks/       TanStack Query hooks
+│   │   ├── storage.js   the only file that knows about the backend
+│   │   ├── i18n.js      bilingual copy + catIndexFor
+│   │   └── ...
+│   └── public/          favicons
+├── server/              Express + SQLite backend
+│   └── src/
+│       ├── index.js     CRUD routes
+│       └── db.js        SQLite connection + schema
+└── vercel.json          build command + /api proxy rewrite
+```
 
-Open `index.html` in any modern browser. Click **載入範例 / Load sample**
-to populate with example entries, or start a new garden with your first
-real expense.
+The `static-original` git branch preserves the original pre-React static
+HTML version of the project.
+
+## Develop locally
+
+You'll need Node 22+.
+
+**Backend:**
+```bash
+cd server
+npm install
+npm run dev          # listens on http://localhost:3001
+```
+
+**Frontend** (in a separate terminal):
+```bash
+cd app
+npm install
+npm run dev          # opens http://localhost:5173 (or next free port)
+```
+
+Vite proxies `/api/*` to the local Express server, so `storage.js` makes
+same-origin requests in both dev and production.
+
+The local backend writes to `server/data.db` by default. Set the
+`DB_PATH` env var to override.
+
+## Deploy
+
+**Frontend (Vercel):**
+- Connect the GitHub repo
+- Vercel reads `vercel.json` automatically; no extra config needed
+- The rewrite in `vercel.json` points at the Railway backend URL — update
+  it if you redeploy to a different host
+
+**Backend (Railway):**
+- New project from GitHub repo
+- Settings → Source → **Root Directory:** `server`
+- Variables → `DB_PATH=/app/data/data.db`
+- Volumes → mount path `/app/data` (essential — SQLite data lives here)
+- Settings → Networking → Generate Domain (port `8080`)
+
+See [`SPEC.md`](SPEC.md) for the full data model, API contract, and key
+design decisions.
 
 ---
 
