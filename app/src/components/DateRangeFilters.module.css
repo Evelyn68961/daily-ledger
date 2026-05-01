@@ -1,0 +1,49 @@
+.filters {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.field {
+  flex: 1;
+  min-width: 130px;
+  font-size: 12px;
+  padding: 7px 10px;
+  border: 0.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--cream-soft);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  font-family: inherit;
+}
+
+.field:focus {
+  border-color: var(--sage-deep);
+  background: var(--card);
+}
+
+.separator {
+  color: var(--ink-hint);
+  font-size: 12px;
+  font-style: italic;
+}
+
+.btnMini {
+  background: transparent;
+  border: 0;
+  color: var(--ink-hint);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.btnMini:hover {
+  color: var(--exp);
+  background: var(--cream-deep);
+}

@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --cream: #F4EAD5;
+  --cream-deep: #EDDEC0;
+  --cream-soft: #FAF3E4;
+  --sage: #A8B89A;
+  --sage-deep: #7A8C6C;
+  --sage-ink: #2D3E2A;
+  --clay: #D4A574;
+  --clay-deep: #B88756;
+  --clay-ink: #7A5C3F;
+  --ink: #1F2B1D;
+  --ink-soft: #5D6E4D;
+  --ink-hint: #9AA68E;
+  --line: #DDD1B5;
+  --line-soft: #E8DEC4;
+  --card: #FBF5E7;
+  --inc: #5A7A4E;
+  --inc-soft: #DDE8D1;
+  --exp: #B5634A;
+  --exp-soft: #F0D9CC;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  font-family: 'Manrope', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--ink);
+  background: var(--cream);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 15% 50%, rgba(168, 184, 154, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 85% 20%, rgba(212, 165, 116, 0.10) 0%, transparent 40%);
+  min-height: 100vh;
+}
+
+button {
+  font-family: inherit;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(var(--r, 0deg)) translateY(0); }
+  50% { transform: rotate(calc(var(--r, 0deg) + 2deg)) translateY(-4px); }
+}

@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+app/dist/
+app/build/
+
+# Local DB and logs
+server/data.db
+server/data.db-journal
+server/data.db-shm
+server/data.db-wal
+*.log
+npm-debug.log*
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Env files
+.env
+.env.local
+.env.*.local

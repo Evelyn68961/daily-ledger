@@ -1,0 +1,108 @@
+.monthNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.monthBtn {
+  background: transparent;
+  border: 0.5px solid var(--line);
+  color: var(--ink-soft);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  transition: all 0.15s;
+}
+
+.monthBtn:hover:not(:disabled) {
+  border-color: var(--sage-deep);
+  color: var(--sage-ink);
+  background: var(--cream-soft);
+}
+
+.monthBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.monthLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sage-ink);
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  min-width: 110px;
+  text-align: center;
+}
+
+.wrap {
+  position: relative;
+  margin-top: 8px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #FAF3E4 0%, #F4EAD5 55%, #EFE0C1 100%);
+}
+
+.svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 1000 / 320;
+}
+
+.plant {
+  cursor: pointer;
+}
+
+.legend {
+  font-size: 11px;
+  color: var(--ink-hint);
+  margin-top: 12px;
+  text-align: center;
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+
+.chip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--card);
+  border: 0.5px solid var(--line);
+  border-radius: 10px;
+  padding: 7px 11px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--ink);
+  box-shadow: 0 4px 14px rgba(45, 62, 42, 0.12);
+  opacity: 0;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  max-width: 90%;
+  z-index: 10;
+  transform: translateX(-50%);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.chipOn {
+  opacity: 1;
+}
+
+.chipMeta {
+  color: var(--ink-soft);
+  font-size: 10.5px;
+}
+
+.chipAmt {
+  color: var(--exp);
+  font-weight: 600;
+  margin-top: 1px;
+}

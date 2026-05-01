@@ -1,0 +1,14 @@
+.wrap {
+  position: relative;
+  height: 220px;
+}
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  color: var(--ink-hint);
+  font-size: 14px;
+  font-style: italic;
+}

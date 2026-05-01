@@ -1,0 +1,71 @@
+.row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 600px) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+.stat {
+  background: var(--card);
+  border: 0.5px solid var(--line);
+  border-radius: 16px;
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--sage);
+  opacity: 0.5;
+}
+
+.exp::after { background: var(--exp); }
+.bal::after { background: var(--clay); }
+
+.label {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.value {
+  font-weight: 600;
+  font-size: 28px;
+  color: var(--sage-ink);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.inc .value { color: var(--inc); }
+.exp .value { color: var(--exp); }
+
+.balNeg { color: var(--exp); }
+
+.compact .stat {
+  padding: 20px 22px;
+}
+
+.compact .label {
+  margin-bottom: 6px;
+}
+
+.compact .value {
+  font-size: 24px;
+}
