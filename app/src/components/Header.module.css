@@ -64,7 +64,7 @@
   letter-spacing: 0.02em;
 }
 
-.langOn {
+.langSwitch button.langOn {
   background: var(--cream-soft);
   color: var(--sage-ink);
 }

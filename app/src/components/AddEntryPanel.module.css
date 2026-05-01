@@ -20,14 +20,18 @@
   transition: all 0.15s;
 }
 
-.onExp {
+.typeToggle button.onExp {
   background: var(--card);
   color: var(--exp);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(45, 62, 42, 0.1);
 }
 
-.onInc {
+.typeToggle button.onInc {
   background: var(--card);
   color: var(--inc);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(45, 62, 42, 0.1);
 }
 
 .row2 {
