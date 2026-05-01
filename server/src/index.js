@@ -4,7 +4,11 @@ import { randomUUID } from 'node:crypto';
 import { db } from './db.js';
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173' }));
+
+const corsOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map((s) => s.trim())
+  : [/^http:\/\/localhost:\d+$/];
+app.use(cors({ origin: corsOrigins }));
 app.use(express.json());
 
 const listStmt = db.prepare('SELECT id, type, amount, date, category, note FROM entries ORDER BY date DESC, created_at DESC');
